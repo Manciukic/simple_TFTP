@@ -1,0 +1,5 @@
+# Simple TFTP implementation
+
+This repository contains a simple TFTP implementation
+([RFC1350](https://tools.ietf.org/html/rfc1350)), made as a project for the
+Course in Newtworking @ University of Pisa.
