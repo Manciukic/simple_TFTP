@@ -6,6 +6,7 @@ CFLAGS  = -g -Wall -std=c99 -O0
 OBJDIR  = build
 SRCDIR  = src
 BINDIR  = dist
+HDRDIR  = src/include
 
 # List of targets
 UTILS   = fblock tftp_msgs inet_utils debug_utils tftp
@@ -18,12 +19,12 @@ all: $(addprefix $(BINDIR)/,$(TARGETS))
 .SECONDARY: $(UTILSOBJ)
 
 # Build targets
-$(BINDIR)/%: $(OBJDIR)/%.o $(UTILS_OBJ)
-	$(CC) $(CFLAGS) -o $@ $^
+$(BINDIR)/%: $(OBJDIR)/%.o $(UTILS_OBJ) $(HDRDIR)/*.h
+	$(CC) $(CFLAGS) -o $@ $(filter %.o,$^)
 
 # Build generic .o file from .c file
-$(OBJDIR)/%.o: $(SRCDIR)/%.c
-	$(CC) $(CFLAGS) -c $^ -o $@
+$(OBJDIR)/%.o: $(SRCDIR)/%.c $(HDRDIR)/*.h
+	$(CC) $(CFLAGS) -c $< -o $@
 
 # clean
 .PHONY: clean
