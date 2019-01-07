@@ -87,11 +87,14 @@ int tftp_msg_get_size_rrq(char* filename, char* mode);
 /**
  * Builds a write request message.
  *
+ * Message format:
+ * ```
  *  2 bytes    string    1 byte    string    1 byte
  *  -----------------------------------------------
  * |   02  |  Filename  |   0  |    Mode    |   0  |
  *  -----------------------------------------------
- *
+ * ```
+ * 
  * @param filename  name of the file
  * @param mode      requested transfer mode ("netascii" or "octet")
  * @param buffer    data buffer where to build the message
@@ -121,11 +124,14 @@ int tftp_msg_get_size_wrq(char* filename, char* mode);
 /**
  * Builds a data message.
  *
+ * Message format:
+ * ```
  *  2 bytes    2 bytes       n bytes
  *  ---------------------------------
  * | 03    |   Block #  |    Data    |
  *  ---------------------------------
- *
+ * ```
+ * 
  * @param block_n   block sequence number
  * @param data      pointer to the buffer containing the data to be transfered
  * @param data_size data buffer size
@@ -157,11 +163,14 @@ int tftp_msg_get_size_data(int data_size);
 /**
  * Builds an acknowledgment message.
  *
+ * Message format:
+ * ```
  *  2 bytes    2 bytes
  *  -------------------
  * | 04    |   Block #  |
  *  --------------------
- *
+ * ```
+ * 
  * @param block_n   block sequence number
  * @param buffer    data buffer where to build the message
  */
@@ -190,12 +199,15 @@ int tftp_msg_get_size_ack();
 
 /**
  * Builds an error message.
- *
+ * 
+ * Message format:
+ * ```
  *   2 bytes  2 bytes        string    1 byte
  *  ----------------------------------------
  * | 05    |  ErrorCode |   ErrMsg   |   0  |
  *  ----------------------------------------
- *
+ * ```
+ * 
  * @param error_code error code (from 0 to 7)
  * @param error_msg  error message
  * @param buffer    data buffer where to build the message
