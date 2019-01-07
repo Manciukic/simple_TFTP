@@ -2,4 +2,3 @@ build/*
 dist/*
 test/*
 .vscode/*
-doc/*
