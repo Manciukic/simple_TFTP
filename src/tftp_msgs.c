@@ -2,18 +2,25 @@
  * @file
  * @author Riccardo Mancini
  * @brief Implementation of tftp_msgs.h .
+ * 
+ * @see tftp_msgs.h
  */
 
+
+/** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
+
 
 #include "include/tftp_msgs.h"
 #include <string.h>
 #include <stdio.h>
 #include "include/logging.h"
 
+
 int tftp_msg_type(char *buffer){
   return (((int)buffer[0]) << 8) + buffer[1];
 }
+
 
 void tftp_msg_build_rrq(char* filename, char* mode, char* buffer){
   buffer[0] = 0;
@@ -23,6 +30,7 @@ void tftp_msg_build_rrq(char* filename, char* mode, char* buffer){
   buffer += strlen(filename)+1;
   strcpy(buffer, mode);
 }
+
 
 int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode){
   int offset = 0;
@@ -58,9 +66,11 @@ int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode
   }
 }
 
+
 int tftp_msg_get_size_rrq(char* filename, char* mode){
   return 4 + strlen(filename) + strlen(mode);
 }
+
 
 void tftp_msg_build_wrq(char* filename, char* mode, char* buffer){
   buffer[0] = 0;
@@ -70,6 +80,7 @@ void tftp_msg_build_wrq(char* filename, char* mode, char* buffer){
   buffer += strlen(filename)+1;
   strcpy(buffer, mode);
 }
+
 
 int tftp_msg_unpack_wrq(char* buffer, int buffer_len, char* filename, char* mode){
   int offset = 0;
@@ -106,9 +117,11 @@ int tftp_msg_unpack_wrq(char* buffer, int buffer_len, char* filename, char* mode
   }
 }
 
+
 int tftp_msg_get_size_wrq(char* filename, char* mode){
   return 4 + strlen(filename) + strlen(mode);
 }
+
 
 void tftp_msg_build_data(int block_n, char* data, int data_size, char* buffer){
   buffer[0] = 0;
@@ -118,6 +131,7 @@ void tftp_msg_build_data(int block_n, char* data, int data_size, char* buffer){
   buffer += 4;
   memcpy(buffer, data, data_size);
 }
+
 
 int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data, int* data_size){
   if (tftp_msg_type(buffer) != TFTP_TYPE_DATA){
@@ -137,9 +151,11 @@ int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data,
   return 0;
 }
 
+
 int tftp_msg_get_size_data(int data_size){
   return data_size + 4;
 }
+
 
 void tftp_msg_build_ack(int block_n, char* buffer){
   buffer[0] = 0;
@@ -147,6 +163,7 @@ void tftp_msg_build_ack(int block_n, char* buffer){
   buffer[2] = block_n >> 8;
   buffer[3] = block_n;
 }
+
 
 int tftp_msg_unpack_ack(char* buffer, int buffer_len, int* block_n){
   if (tftp_msg_type(buffer) != TFTP_TYPE_ACK){
@@ -162,9 +179,11 @@ int tftp_msg_unpack_ack(char* buffer, int buffer_len, int* block_n){
   return 0;
 }
 
+
 int tftp_msg_get_size_ack(){
   return 4;
 }
+
 
 void tftp_msg_build_error(int error_code, char* error_msg, char* buffer){
   buffer[0] = 0;
@@ -174,6 +193,7 @@ void tftp_msg_build_error(int error_code, char* error_msg, char* buffer){
   buffer += 4;
   strcpy(buffer, error_msg);
 }
+
 
 int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, char* error_msg){
   if (tftp_msg_type(buffer) != TFTP_TYPE_ERROR){
@@ -200,6 +220,7 @@ int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, char* e
     }
     return 0;
 }
+
 
 int tftp_msg_get_size_error(char* error_msg){
   return 5 + strlen(error_msg);

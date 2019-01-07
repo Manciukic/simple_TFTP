@@ -1,4 +1,15 @@
+/**
+ * @file
+ * @author Riccardo Mancini
+ * @brief Implementation of inet_utils.h.
+ * 
+ * @see inet_utils.h
+ */
+
+
+/** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
+
 
 #include "include/inet_utils.h"
 #include <stdlib.h>
@@ -7,6 +18,7 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "include/logging.h"
+
 
 int bind_random_port(int socket, struct sockaddr_in *addr){
   int port, ret, i;
@@ -28,6 +40,7 @@ int bind_random_port(int socket, struct sockaddr_in *addr){
   return 0;
 }
 
+
 struct sockaddr_in make_sv_sockaddr_in(char* ip, int port){
   struct sockaddr_in addr;
   memset(&addr, 0, sizeof(addr));
@@ -36,6 +49,7 @@ struct sockaddr_in make_sv_sockaddr_in(char* ip, int port){
   inet_pton(AF_INET, ip, &addr.sin_addr);
   return addr;
 }
+
 
 struct sockaddr_in make_my_sockaddr_in(int port){
   struct sockaddr_in addr;

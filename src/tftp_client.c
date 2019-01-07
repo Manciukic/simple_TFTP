@@ -98,7 +98,6 @@ void print_help(){
   printf("Example: ./tftp_client 127.0.0.1 69");
 }
 
-
 /**
  * Handles !help command, printing information about available commands.
  */
@@ -109,7 +108,6 @@ void cmd_help(){
   printf("!get filename nome_locale --> richiede al server il nome del file <filename> e lo salva localmente con il nome <nome_locale>\n");
   printf("!quit --> termina il client\n");
 }
-
 
 /**
  * Handles !mode command, changing transfer_mode to either bin or text.
@@ -127,7 +125,6 @@ void cmd_mode(char* new_mode){
     printf("Modo di traferimento sconosciuto: %s. Modi disponibili: txt, bin\n", new_mode);
   }
 }
-
 
 /**
  * Handles !get command, reading file from server.
@@ -198,7 +195,6 @@ void cmd_quit(){
   printf("Client terminato con successo\n");
   exit(0);
 }
-
 
 /** Main */
 int main(int argc, char** argv){

@@ -1,15 +1,20 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Implementation of fblock.h .
+ * @brief Implementation of fblock.h.
+ * 
+ * @see fblock.h
  */
 
+/** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
+
 
 #include "include/fblock.h"
 #include <stdio.h>
 #include <string.h>
 #include "include/logging.h"
+
 
 /**
  * Returns file length

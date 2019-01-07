@@ -2,6 +2,7 @@
  * @file
  * @author Riccardo Mancini
  * @brief Logging macro
+ * 
  * This file contains a macro for logging in different levels.
  *
  * There are 5 levels of logging:

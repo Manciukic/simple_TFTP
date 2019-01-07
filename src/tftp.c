@@ -1,4 +1,15 @@
+/**
+ * @file
+ * @author Riccardo Mancini
+ * @brief Implementation of tftp.h .
+ * 
+ * @see tftp.h
+ */
+
+
+/** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
+
 
 #include "include/fblock.h"
 #include "include/tftp_msgs.h"
@@ -28,6 +39,7 @@ int tftp_send_rrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
   return 0;
 }
 
+
 int tftp_send_wrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
   int msglen, len;
   char *out_buffer;
@@ -46,6 +58,7 @@ int tftp_send_wrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
   free(out_buffer);
   return 0;
 }
+
 
 int tftp_send_error(int error_code, char* error_msg, int sd, struct sockaddr_in *addr){
   int msglen, len;
@@ -82,6 +95,7 @@ int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *add
 
   return 0;
 }
+
 
 int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
   char in_buffer[TFTP_MAX_DATA_MSG_SIZE], data[TFTP_DATA_BLOCK], out_buffer[4];
@@ -150,6 +164,7 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
   return 0;
 }
 
+
 int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *addr){
   int msglen, len, ret;
   unsigned int addrlen;
@@ -172,6 +187,7 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
 
   return 0;
 }
+
 
 int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
   char in_buffer[4], data[TFTP_DATA_BLOCK], out_buffer[TFTP_MAX_DATA_MSG_SIZE];
