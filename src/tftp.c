@@ -178,6 +178,7 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
   int block_n, rcv_block_n;
   int len, data_size, msglen;
 
+  // init sequence number
   block_n = 1;
 
   do{
@@ -210,9 +211,9 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
       LOG(LOG_ERR, "Received wrong block n: received %d != expected %d", rcv_block_n, block_n);
       return 3;
     }
+
     block_n++;
 
-    //carico prossima parte mentre aspetto ack?
   } while(data_size == TFTP_DATA_BLOCK);
   return 0;
 }
