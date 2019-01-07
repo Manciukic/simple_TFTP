@@ -84,23 +84,20 @@ int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *add
 }
 
 int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
-  char *in_buffer, *data, *out_buffer;
+  char in_buffer[TFTP_MAX_DATA_MSG_SIZE], data[TFTP_DATA_BLOCK], out_buffer[4];
   int exp_block_n, rcv_block_n;
   int len, data_size, ret, type;
   unsigned int addrlen;
   struct sockaddr_in cl_addr;
 
-
-  in_buffer = malloc(tftp_msg_get_size_data(TFTP_DATA_BLOCK));
-  data = malloc(TFTP_DATA_BLOCK);
-  out_buffer = malloc(4);
-
+  // init expected block number
   exp_block_n = 1;
+
   addrlen = sizeof(cl_addr);
 
   do{
     LOG(LOG_DEBUG, "Waiting for part %d", exp_block_n);
-    // check client == server ?
+    // TODO: check client == server ?
     len = recvfrom(sd, in_buffer, tftp_msg_get_size_data(TFTP_DATA_BLOCK), 0, (struct sockaddr*)&cl_addr, &addrlen);
     
     type = tftp_msg_type(in_buffer);
@@ -138,6 +135,7 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
       LOG(LOG_ERR, "Received unexpected block_n: rcv_block_n = %d != %d = exp_block_n", rcv_block_n, exp_block_n);
       return 3;
     }
+
     exp_block_n++;
 
     if (fblock_write(m_fblock, data, data_size))
@@ -176,13 +174,9 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
 }
 
 int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
-  char *in_buffer, *data, *out_buffer;
+  char in_buffer[4], data[TFTP_DATA_BLOCK], out_buffer[TFTP_MAX_DATA_MSG_SIZE];
   int block_n, rcv_block_n;
   int len, data_size, msglen;
-
-  in_buffer = malloc(4);
-  data = malloc(TFTP_DATA_BLOCK);
-  out_buffer = malloc(tftp_msg_get_size_data(TFTP_DATA_BLOCK));
 
   block_n = 1;
 

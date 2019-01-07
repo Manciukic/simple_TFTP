@@ -54,6 +54,9 @@
 /** Data block size as defined in RFC */
 #define TFTP_DATA_BLOCK 512
 
+/** Data message max size is equal to TFTP_DATA_BLOCK + 4 (header) */
+#define TFTP_MAX_DATA_MSG_SIZE 516
+
 
 /**
  * Retuns msg type given a message buffer.
