@@ -1,10 +1,15 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Implementation of the TFTP server serving only read requests.
+ * @brief Implementation of the TFTP server that can only handle read requests.
+ * 
+ * The server is multiprocessed, with each process handling one request.
  */
 
+
+/** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
+
 
 #include "include/tftp_msgs.h"
 #include "include/tftp.h"
@@ -23,12 +28,20 @@
 #include <unistd.h>
 #include <time.h>
 
+/** Maximum length for a RRQ message */
+#define MAX_MSG_LEN TFTP_MAX_MODE_LEN+TFTP_MAX_FILENAME_LEN+4
+
+/**
+ * Prints command usage information.
+ */
 void print_help(){
   printf("Usage: ./tftp_server LISTEN_PORT FILES_DIR\n");
   printf("Example: ./tftp_server 69 .\n");
 }
 
-
+/**
+ * Sends file to a client.
+ */
 int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
   struct sockaddr_in my_addr;
   int sd;
@@ -75,11 +88,13 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
   return 0;
 }
 
+/** Main */
 int main(int argc, char** argv){
   short int my_port;
-  char *directory, *filename, *path, *mode;
-  int ret, max_msglen, type, len;
-  char* in_buffer;
+  char *directory;
+  char filename[TFTP_MAX_FILENAME_LEN], *path, mode[TFTP_MAX_MODE_LEN];
+  int ret, type, len;
+  char in_buffer[MAX_MSG_LEN];
   unsigned int addrlen;
   int sd;
   struct sockaddr_in my_addr, cl_addr;
@@ -93,8 +108,6 @@ int main(int argc, char** argv){
   my_port = atoi(argv[1]);
   directory = argv[2];
 
-  max_msglen = TFTP_MAX_MODE_LEN+TFTP_MAX_FILENAME_LEN+4;
-  in_buffer = malloc(max_msglen);
   addrlen = sizeof(cl_addr);
 
   sd = socket(AF_INET, SOCK_DGRAM, 0);
@@ -108,7 +121,7 @@ int main(int argc, char** argv){
   LOG(LOG_INFO, "Server is running");
 
   while (1){
-    len = recvfrom(sd, in_buffer, max_msglen, 0, (struct sockaddr*)&cl_addr, &addrlen);
+    len = recvfrom(sd, in_buffer, MAX_MSG_LEN, 0, (struct sockaddr*)&cl_addr, &addrlen);
     type = tftp_msg_type(in_buffer);
     LOG(LOG_DEBUG, "Received message with type %d", type);
     if (type == TFTP_TYPE_RRQ){
@@ -121,13 +134,13 @@ int main(int argc, char** argv){
       //init random seed
       srand(time(NULL));
 
-      filename = malloc(TFTP_MAX_FILENAME_LEN);
-      mode = malloc(TFTP_MAX_MODE_LEN);
-      path = malloc(TFTP_MAX_FILENAME_LEN+strlen(directory));
       ret = tftp_msg_unpack_rrq(in_buffer, len, filename, mode);
+
+      path = malloc(strlen(filename)+strlen(directory)+2);
       path[0] = '\0';
+
       strcat(path, directory);
-      strcat(path, "/");
+      strcat(path, "/");  // TODO: handle trailing / 
       strcat(path, filename);
 
       LOG(LOG_INFO, "User wants to read file %s in mode %s", filename, mode);
@@ -135,11 +148,11 @@ int main(int argc, char** argv){
       ret = send_file(path, mode, &cl_addr);
       if (ret != 0)
         LOG(LOG_WARN, "Write terminated with an error: %d", ret);
-      break;
+      break;  // child process exits loop
     } else{
       LOG(LOG_WARN, "Wrong op code: %d", type);
       tftp_send_error(4, "Illegal TFTP operation.", sd, &cl_addr);
-    }
+    } // father process continues loop
   }
 
   LOG(LOG_INFO, "Exiting process %d", (int) getpid());

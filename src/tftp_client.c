@@ -1,10 +1,12 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Implementation of the TFTP client making only read requests.
+ * @brief Implementation of the TFTP client that can only make read requests.
  */
 
+/** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
+
 
 #include "include/logging.h"
 #include "include/tftp_msgs.h"
@@ -21,43 +23,60 @@
 #include <stdlib.h>
 #include <time.h>
 
+
 /** max stdin line length */
 #define READ_BUFFER_SIZE 80
 
+/** Maximum number of arguments for commands */
 #define MAX_ARGS 3
 
+/** String for txt */
 #define MODE_TXT "txt"
+
+/** String for bin*/
 #define MODE_BIN "bin"
 
+
+/** 
+ * Global transfer_mode variable for storing user chosen transfer mode string.
+ * 
+ * @see MODE_TXT
+ * @see MODE_BIN
+ */
 char* transfer_mode;
+
 
 /**
  * Splits a string at each delim.
  * 
  * Trailing LF will be removed. Consecutive delimiters will be considered as one.
  * 
- * @param line      the string to split
- * @param delim     the delimiter
- * @param max_argc  maximum number of parts to split the line into
- * @param argc      parts count (out)
- * @param argv      array of parts (out)
+ * @param line [in]     the string to split
+ * @param delim [in]    the delimiter
+ * @param max_argc [in] maximum number of parts to split the line into
+ * @param argc [out]    counts of the parts the line is split into
+ * @param argv [out]    array of parts the line is split into
  */
 void split_string(char* line, char* delim, int max_argc, int *argc, char **argv){
   char *ptr;
-  int len;
+  int len;/**
+ * Prints command usage information.
+ */
   char *pos;
 
   // remove trailing LF
   if ((pos=strchr(line, '\n')) != NULL)
     *pos = '\0';
 
+  // init argc
   *argc = 0;
 
-
+  // tokenize string 
   ptr = strtok(line, delim);
 
 	while(ptr != NULL && *argc <= max_argc){
     len = strlen(ptr);
+
     if (len == 0)
       continue;
 
@@ -93,7 +112,9 @@ void cmd_help(){
 
 
 /**
- * Handles !mode command, changing mode to either bin or text.
+ * Handles !mode command, changing transfer_mode to either bin or text.
+ * 
+ * @see transfer_mode
  */
 void cmd_mode(char* new_mode){
   if (strcmp(new_mode, MODE_TXT) == 0){
@@ -178,11 +199,13 @@ void cmd_quit(){
   exit(0);
 }
 
+
+/** Main */
 int main(int argc, char** argv){
   char* sv_ip;
   short int sv_port;
   int ret;
-  char *read_buffer;
+  char read_buffer[READ_BUFFER_SIZE];
   int cmd_argc;
   char *cmd_argv[MAX_ARGS];
 
@@ -191,8 +214,6 @@ int main(int argc, char** argv){
 
   // default mode = bin
   transfer_mode = TFTP_STR_OCTET;
-
-  read_buffer = malloc(READ_BUFFER_SIZE);
 
   if (argc != 3){
     print_help();
@@ -241,8 +262,12 @@ int main(int argc, char** argv){
         printf("Comando non riconosciuto : '%s'\n", cmd_argv[0]);
         cmd_help();
       } 
-    } 
+    }
+
+    // Free malloc'ed strings
+    for (int i = 0; i < cmd_argc; i++)
+      free(cmd_argv[i]); 
   }
 
-  return ret;
+  return 0;
 }
