@@ -15,6 +15,9 @@ The server can be started with the following syntax:
 $ ./tftp_server <listening_port> <files_directory>
 ```
 
+The server is implemented as multi-process, with each new process handling a new
+"connection".
+
 Example:
 ```
 $ path/to/tftp_server 9999 test/
