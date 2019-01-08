@@ -68,7 +68,7 @@ all: exe $(DOCDIR)/$(DOCPDFNAME) $(DOCDIR)/$(SRCPDFNAME)
 
 # clean everything
 clean:
-	rm -rf $(OBJDIR)/* $(BINDIR)/* $(DOCTMPDIR)/* $(DOCDIR)/$(DOCPDFNAME) $(DOCDIR)/$(SRCPDFNAME) 
+	$(RM) -r $(OBJDIR)/* $(BINDIR)/* $(DOCDIR)/$(DOCPDFNAME) $(DOCDIR)/$(SRCPDFNAME) 
 
 # clean everything and then rebuild
 rebuild: clean all
@@ -94,7 +94,7 @@ source: $(DOCDIR)/$(SRCPDFNAME)
 # 7) compares text in text outputs with original files 
 # if there are no errors, there should be no output after every "Comparing..." line
 test: exe
-	rm test/test_*
+	$(RM) test/test_*
 	dist/tftp_server 9999 test &
 	for test in $(TESTS); do echo "--- $$test ---"; printf "!get $$test test/test_bin_$$test\n!quit\n" | dist/tftp_client 127.0.0.1 9999; done
 	for test in $(TESTS); do echo "--- $$test ---"; printf "!mode txt\n!get $$test test/test_txt_$$test\n!quit\n" | dist/tftp_client 127.0.0.1 9999; done
@@ -115,3 +115,6 @@ help:
 
 # these targets aren't name of files
 .PHONY: all exe clean rebuild doc_open doc test help source
+
+# build project structure
+$(shell   mkdir -p $(SRCDIR) $(HDRDIR) $(DOCDIR) $(OBJDIR) $(BINDIR) test)
