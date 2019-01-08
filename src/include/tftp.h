@@ -97,6 +97,7 @@ int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *add
  * - 6 in case of en error while writing to the file.
  * - 7 in case of an error message different from File Not Found (since it is the only erorr available in current implementation).
  * - 8 in case of the incoming message is neither DATA nor ERROR.
+ * - 9 in case of message from unexpected source
  */
 int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr);
 
@@ -112,6 +113,7 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
  * @return
  * - 0 in case of success
  * - 1 in case of failure while receiving the message
+ * - 2 in case of address and/or port mismatch in sender sockaddr
  * - error unpacking ACK message otherwise (8 + result of tftp_msg_unpack_ack)
  * 
  * @see tftp_msg_unpack_ack

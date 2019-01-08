@@ -13,6 +13,7 @@
 #include "include/fblock.h"
 #include "include/tftp_msgs.h"
 #include "include/debug_utils.h"
+#include "include/inet_utils.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -102,7 +103,7 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
   int exp_block_n, rcv_block_n;
   int len, data_size, ret, type;
   unsigned int addrlen;
-  struct sockaddr_in cl_addr;
+  struct sockaddr_in cl_addr, orig_cl_addr;
 
   // init expected block number
   exp_block_n = 1;
@@ -113,6 +114,27 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
     LOG(LOG_DEBUG, "Waiting for part %d", exp_block_n);
     // TODO: check client == server ?
     len = recvfrom(sd, in_buffer, tftp_msg_get_size_data(TFTP_DATA_BLOCK), 0, (struct sockaddr*)&cl_addr, &addrlen);
+    if (exp_block_n == 1){ // first block -> I need to save servers TID (aka its "original" sockaddr)
+      char addr_str[MAX_SOCKADDR_STR_LEN];
+      sockaddr_in_to_string(cl_addr, addr_str); 
+    
+      if (addr->sin_addr.s_addr != cl_addr.sin_addr.s_addr){
+        LOG(LOG_ERR, "Received message from unexpected source: %s", addr_str);
+        return 9;
+      } else{
+        LOG(LOG_INFO, "Receiving packets from %s", addr_str);
+        orig_cl_addr = cl_addr;
+      }
+    } else{
+      if (sockaddr_in_cmp(orig_cl_addr, cl_addr) != 0){
+        char addr_str[MAX_SOCKADDR_STR_LEN];
+        sockaddr_in_to_string(cl_addr, addr_str); 
+        LOG(LOG_ERR, "Received message from unexpected source: %s", addr_str);
+        return 9;
+      } else{
+        LOG(LOG_DEBUG, "Sender is the same!");
+      }
+    }
     
     type = tftp_msg_type(in_buffer);
     if (type == TFTP_TYPE_ERROR){
@@ -175,10 +197,18 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
 
   len = recvfrom(sd, in_buffer, msglen, 0, (struct sockaddr*)&cl_addr, &addrlen);
 
+  if (sockaddr_in_cmp(*addr, cl_addr) != 0){
+    char str_addr[MAX_SOCKADDR_STR_LEN];
+    sockaddr_in_to_string(cl_addr, str_addr);
+    LOG(LOG_ERR, "Message is coming from unexpected source: %s", str_addr);
+    return 2;
+  }
+
   if (len != msglen){
     LOG(LOG_ERR, "Error receiving ACK: len (%d) != msglen (%d)", len, msglen);
     return 1;
   }
+
   ret = tftp_msg_unpack_ack(in_buffer, len, block_n);
   if (ret != 0){
     LOG(LOG_ERR, "Error unpacking ack: %d", ret);
