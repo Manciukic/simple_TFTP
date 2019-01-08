@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Implementation of tftp.h .
+ * 
+ * @brief Implementation of tftp.h.
  * 
  * @see tftp.h
  */

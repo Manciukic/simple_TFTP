@@ -1,6 +1,7 @@
 /**
  * @file
  * @author Riccardo Mancini
+ * 
  * @brief Implementation of debug_utils.h.
  * 
  * @see debug_utils.h

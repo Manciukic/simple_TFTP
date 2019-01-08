@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Contructor for TFTP messages
+ * 
+ * @brief Contructor for TFTP messages.
  *
  * This library provides functions for building TFTP messages.
  * There are 5 types of messages:

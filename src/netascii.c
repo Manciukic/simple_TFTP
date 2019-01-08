@@ -1,6 +1,7 @@
 /**
  * @file
  * @author Riccardo Mancini
+ * 
  * @brief Implementation of netascii.h.
  * 
  * @see netascii.h

@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Logging macro
+ * 
+ * @brief Logging macro.
  * 
  * This file contains a macro for logging in different levels.
  *

@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Conversion functions from netascii to Unix standard ASCII
+ * 
+ * @brief Conversion functions from netascii to Unix standard ASCII.
  *
  * This library provides two functions to convert a file from netascii to Unix
  * standard ASCII and viceversa.

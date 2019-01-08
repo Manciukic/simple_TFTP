@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Utility funcions for managing inet addresses
+ * 
+ * @brief Utility funcions for managing inet addresses.
  *
  * This library provides functions for creating sockaddr_in structures from
  * IP address string and integer port number and for binding to a random 

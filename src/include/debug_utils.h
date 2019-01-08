@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Utility functions for debugging
+ * 
+ * @brief Utility functions for debugging.
  *
  * At the moment, this library implements only one function for dumping a 
  * buffer using hexadecimal.

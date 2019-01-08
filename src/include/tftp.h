@@ -1,7 +1,8 @@
 /**
  * @file
  * @author Riccardo Mancini
- * @brief Common functions for TFTP client and server
+ * 
+ * @brief Common functions for TFTP client and server.
  *
  * This library provides functions for sending requests, errors and exchanging
  * files using the TFTP protocol.

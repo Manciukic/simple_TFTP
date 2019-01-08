@@ -1,6 +1,7 @@
 /**
  * @file
  * @author Riccardo Mancini
+ * 
  * @brief Implementation of inet_utils.h.
  * 
  * @see inet_utils.h

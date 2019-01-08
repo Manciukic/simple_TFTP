@@ -1,6 +1,7 @@
 /**
  * @file
  * @author Riccardo Mancini
+ * 
  * @brief File block read and write.
  *
  * This library provides functions for reading and writing a text or binary
