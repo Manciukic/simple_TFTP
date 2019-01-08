@@ -1,18 +1,18 @@
 # Compiler and flags
-CC      = gcc
-CFLAGS  = -g -Wall -std=c99 -O0
+CC         = gcc
+CFLAGS     = -g -Wall -std=c99
 
 # Directories
-OBJDIR  = build
-SRCDIR  = src
-BINDIR  = dist
-HDRDIR  = src/include
-DOCDIR  = doc
-DOCTMPDIR = build/doc
+OBJDIR     = build
+SRCDIR     = src
+BINDIR     = dist
+HDRDIR     = src/include
+DOCDIR     = doc
+DOCTMPDIR  = build/doc
 
 # List of targets
-UTILS   = fblock tftp_msgs inet_utils debug_utils tftp netascii
-TARGETS = tftp_client tftp_server
+UTILS      = fblock tftp_msgs inet_utils debug_utils tftp netascii
+TARGETS    = tftp_client tftp_server
 
 # Documentation output
 DOCPDFNAME = TFTP_documentation.pdf
@@ -22,10 +22,10 @@ SRCPDFNAME = source_code.pdf
 DOXYGENCFG = doxygen.cfg
 
 # Test files
-TESTS = 0.txt 4.txt 512.txt 513.txt 62836.txt 131073.txt
+TESTS      = 0.txt 4.txt 512.txt 513.txt 62836.txt 131073.txt
 
 # Object files for utilities (aka libraries)
-UTILS_OBJ = $(addsuffix .o, $(addprefix $(OBJDIR)/,$(UTILS)))
+UTILS_OBJ  = $(addsuffix .o, $(addprefix $(OBJDIR)/,$(UTILS)))
 
 # Builds only the executables: default rule
 exe: $(addprefix $(BINDIR)/,$(TARGETS))
@@ -41,6 +41,9 @@ $(BINDIR)/%: $(OBJDIR)/%.o $(UTILS_OBJ) $(HDRDIR)/*.h
 $(OBJDIR)/%.o: $(SRCDIR)/%.c $(HDRDIR)/*.h
 	$(CC) $(CFLAGS) -c $< -o $@
 
+# Note that if I modify any header everything is built again
+# This is not very effective but for such small project that's not an issue
+
 # Build documentation pdf
 $(DOCDIR)/$(DOCPDFNAME): $(SRCDIR)/*.c $(HDRDIR)/*.h $(DOXYGENCFG)
 	doxygen $(DOXYGENCFG)
@@ -49,6 +52,8 @@ $(DOCDIR)/$(DOCPDFNAME): $(SRCDIR)/*.c $(HDRDIR)/*.h $(DOXYGENCFG)
 
 
 # prepare sorted source list for source code pdf generation
+# I want the header to appear right before the c source file
+# the source files of client and server will be last
 both = $(HDRDIR)/$(1).h $(SRCDIR)/$(1).c 
 ALL_SOURCES = $(foreach x,$(UTILS),$(call both,$(x)))
 ALL_SOURCES += logging.h
@@ -96,11 +101,27 @@ source: $(DOCDIR)/$(SRCPDFNAME)
 test: exe
 	$(RM) test/test_*
 	dist/tftp_server 9999 test &
-	for test in $(TESTS); do echo "--- $$test ---"; printf "!get $$test test/test_bin_$$test\n!quit\n" | dist/tftp_client 127.0.0.1 9999; done
-	for test in $(TESTS); do echo "--- $$test ---"; printf "!mode txt\n!get $$test test/test_txt_$$test\n!quit\n" | dist/tftp_client 127.0.0.1 9999; done
+	for test in $(TESTS); \
+	do \
+		echo "--- $$test ---"; \
+		printf "!get $$test test/test_bin_$$test\n!quit\n" | dist/tftp_client 127.0.0.1 9999; \
+	done
+	for test in $(TESTS); \
+	do \
+		echo "--- $$test ---"; \
+		printf "!mode txt\n!get $$test test/test_txt_$$test\n!quit\n" | dist/tftp_client 127.0.0.1 9999; \
+	done
 	pkill tftp_server
-	@for test in $(TESTS); do echo "Comparing $$test ($$(stat --printf="%s" test/$$test)) test_bin_$$test ($$(stat --printf="%s" test/test_bin_$$test))"; cmp test/$$test test/test_bin_$$test; done
-	@for test in $(TESTS); do echo "Comparing $$test ($$(stat --printf="%s" test/$$test)) test_txt_$$test ($$(stat --printf="%s" test/test_txt_$$test))"; diff test/$$test test/test_txt_$$test; done
+	@for test in $(TESTS); \
+	do \
+		echo "Comparing $$test ($$(stat --printf="%s" test/$$test)) test_bin_$$test ($$(stat --printf="%s" test/test_bin_$$test))"; \
+		cmp test/$$test test/test_bin_$$test; \
+	done
+	@for test in $(TESTS); \
+	do \
+		echo "Comparing $$test ($$(stat --printf="%s" test/$$test)) test_txt_$$test ($$(stat --printf="%s" test/test_txt_$$test))"; \
+		diff test/$$test test/test_txt_$$test; \
+	done
 
 help:
 	@echo "all:         builds everything (both binaries and documentation)"
