@@ -35,7 +35,7 @@ int unix2netascii(char *unix_filename, char* netascii_filename){
   prev = EOF;
 
   while ((tmp = (char) fgetc(unixf)) != EOF){
-    if (tmp == '\n' && (prev == EOF || prev != '\r')){ // LF -> CRLF
+    if (tmp == '\n' && prev != '\r'){ // LF -> CRLF
       ret = putc('\r', netasciif);
       if (ret == EOF)
         break;
@@ -56,10 +56,6 @@ int unix2netascii(char *unix_filename, char* netascii_filename){
       ret = putc('\0', netasciif);
       if (ret == EOF)
         break;      
-
-    } else if (tmp == '\0'){
-      ret = putc('\0', netasciif);
-      break;
     } else{
       ret = putc(tmp, netasciif);
       if (ret == EOF)
@@ -120,8 +116,8 @@ int netascii2unix(char* netascii_filename, char *unix_filename){
         result = 4;
         break;  
       } else{                   // bad format
-        LOG(LOG_ERR, "Bad formatted netascii: unexpected %x after CR", next);
-        result = 5;
+        LOG(LOG_ERR, "Bad formatted netascii: unexpected 0x%x after CR", next);
+        result = 4;
         break;
       } 
     } else{
