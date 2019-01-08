@@ -14,6 +14,7 @@
 #include "include/tftp_msgs.h"
 #include "include/logging.h"
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <stdint.h>
@@ -60,7 +61,7 @@ int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode
     LOG(LOG_ERR, "Packet contains unexpected fields");
     return 2;
   }
-  if (strcmp(mode, TFTP_STR_NETASCII) == 0 || strcmp(mode, TFTP_STR_OCTET) == 0)
+  if (strcasecmp(mode, TFTP_STR_NETASCII) == 0 || strcasecmp(mode, TFTP_STR_OCTET) == 0)
     return 0;
   else{
     LOG(LOG_ERR, "Unrecognized transfer mode: %s", mode);
