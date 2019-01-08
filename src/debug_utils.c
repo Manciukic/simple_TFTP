@@ -21,11 +21,12 @@ extern const int LOG_LEVEL;
 
 void dump_buffer_hex(char* buffer, int len){
   char *str, tmp[4];
+  int i;
 
   str = malloc(len*3+1);
 
   str[0] = '\0';
-  for (int i=0; i<len; i++){
+  for (i=0; i<len; i++){
     sprintf(tmp, "%02x ", (unsigned char) buffer[i]);
     strcat(str, tmp);
   }

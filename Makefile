@@ -1,6 +1,6 @@
 # Compiler and flags
 CC         = gcc
-CFLAGS     = -g -Wall -std=c99
+CFLAGS     = -Wall
 
 # Directories
 OBJDIR     = build

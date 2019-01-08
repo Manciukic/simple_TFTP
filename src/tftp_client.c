@@ -214,7 +214,7 @@ void cmd_quit(){
 int main(int argc, char** argv){
   char* sv_ip;
   short int sv_port;
-  int ret;
+  int ret, i;
   char read_buffer[READ_BUFFER_SIZE];
   int cmd_argc;
   char *cmd_argv[MAX_ARGS];
@@ -275,7 +275,7 @@ int main(int argc, char** argv){
     }
 
     // Free malloc'ed strings
-    for (int i = 0; i < cmd_argc; i++)
+    for(i = 0; i < cmd_argc; i++)
       free(cmd_argv[i]); 
   }
 
