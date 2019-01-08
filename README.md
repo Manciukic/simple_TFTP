@@ -2,7 +2,7 @@
 
 This repository contains a simple TFTP implementation
 ([RFC1350](https://tools.ietf.org/html/rfc1350)), made as a project for the
-Course in Newtworking @ University of Pisa.
+Course in Networking @ University of Pisa.
 
 The [project assignment](http://www2.ing.unipi.it/c.vallati/files/reti_2018/Progetto2018.pdf) requires to:
  1. handle only read requests from client to server (download)
