@@ -10,9 +10,9 @@
 /** Defines log level to this file. */
 #define LOG_LEVEL LOG_INFO
 
-
 #include "include/fblock.h"
 #include "include/tftp_msgs.h"
+#include "include/debug_utils.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
@@ -210,6 +210,9 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
 
     msglen = tftp_msg_get_size_data(data_size);
     tftp_msg_build_data(block_n, data, data_size, out_buffer);
+    
+    // dump_buffer_hex(out_buffer, msglen);
+    
     len = sendto(sd, out_buffer, msglen, 0, (struct sockaddr*)addr, sizeof(*addr));
 
     if (len != msglen){
