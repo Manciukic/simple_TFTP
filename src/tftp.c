@@ -263,7 +263,7 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
 
     if (ret == 2){  //unexpected source
       continue;
-    } else{
+    } else if (ret != 0){
       LOG(LOG_ERR, "Error receiving ack");
       return 2;
     }
