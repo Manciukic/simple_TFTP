@@ -251,7 +251,7 @@ int main(int argc, char** argv){
       } else if (strcmp(cmd_argv[0], "!get") == 0){
         if (cmd_argc == 3){
           ret = cmd_get(cmd_argv[1], cmd_argv[2], sv_ip, sv_port);
-          LOG(LOG_INFO, "cmd_get returned value: %d", ret);
+          LOG(LOG_DEBUG, "cmd_get returned value: %d", ret);
         } else{
            printf("Il comando richiede due argomenti: <filename> e <nome_locale>\n");
         }
