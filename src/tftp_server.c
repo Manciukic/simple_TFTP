@@ -8,8 +8,10 @@
 
 
 /** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
+#define LOG_LEVEL LOG_DEBUG
 
+#define _GNU_SOURCE
+#include <stdlib.h>
 
 #include "include/tftp_msgs.h"
 #include "include/tftp.h"
@@ -22,11 +24,13 @@
 #include <netinet/in.h>
 #include <string.h>
 #include <stdio.h>
-#include <stdlib.h>
 #include "include/logging.h"
 #include <sys/types.h>
 #include <unistd.h>
 #include <time.h>
+#include <linux/limits.h>
+#include <libgen.h>
+
 
 /** Maximum length for a RRQ message */
 #define MAX_MSG_LEN TFTP_MAX_MODE_LEN+TFTP_MAX_FILENAME_LEN+4
@@ -91,8 +95,9 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
 /** Main */
 int main(int argc, char** argv){
   short int my_port;
-  char *directory;
-  char filename[TFTP_MAX_FILENAME_LEN], *path, mode[TFTP_MAX_MODE_LEN];
+  char *dir_rel_path;
+  char *ret_realpath;
+  char dir_realpath[PATH_MAX];
   int ret, type, len;
   char in_buffer[MAX_MSG_LEN];
   unsigned int addrlen;
@@ -106,7 +111,13 @@ int main(int argc, char** argv){
   }
 
   my_port = atoi(argv[1]);
-  directory = argv[2];
+  dir_rel_path = argv[2];
+
+  ret_realpath = realpath(dir_rel_path, dir_realpath);
+  if (ret_realpath == NULL){
+    LOG(LOG_FATAL, "Directory not found: %s", dir_rel_path);
+    return 1;
+  }
 
   addrlen = sizeof(cl_addr);
 
@@ -114,7 +125,8 @@ int main(int argc, char** argv){
   my_addr = make_my_sockaddr_in(my_port);
   ret = bind(sd, (struct sockaddr*) &my_addr, sizeof(my_addr));
   if (ret == -1){
-    LOG(LOG_ERR, "Could not bind");
+    perror("Could not bind: ");
+    LOG(LOG_FATAL, "Could not bind to port %d", my_port);
     return 1;
   }
 
@@ -126,33 +138,53 @@ int main(int argc, char** argv){
     LOG(LOG_DEBUG, "Received message with type %d", type);
     if (type == TFTP_TYPE_RRQ){
       pid = fork();
-      if (pid != 0){
+      if (pid != 0){  // father
         LOG(LOG_INFO, "Received RRQ, spawned new process %d", (int) pid);
-        continue;
+        continue; // father process continues loop
+      } else{         // child
+        char filename[TFTP_MAX_FILENAME_LEN], mode[TFTP_MAX_MODE_LEN];
+        char file_path[PATH_MAX], file_realpath[PATH_MAX];
+
+        //init random seed
+        srand(time(NULL));
+
+        ret = tftp_msg_unpack_rrq(in_buffer, len, filename, mode);
+
+        strcpy(file_path, dir_realpath);
+        strcat(file_path, "/");
+        strcat(file_path, filename);
+        ret_realpath = realpath(file_path, file_realpath);
+
+        if (ret_realpath == NULL){
+          LOG(LOG_WARN, "File not found: %s", file_path);
+          tftp_send_error(1, "File Not Found.", sd, &cl_addr);
+          break; // child process exits loop
+        }
+
+        // check if file is inside directory (or inside any of its subdirectories)
+        if (strncmp(file_realpath, dir_realpath, strlen(dir_realpath)) != 0){
+          // it is not! I caught you, Trudy!
+          LOG(LOG_WARN, "User tried to access file %s outside set directory %s", 
+              file_realpath, 
+              dir_realpath
+          );
+
+          tftp_send_error(4, "Access violation.", sd, &cl_addr);
+          break; // child process exits loop
+        }
+
+        LOG(LOG_INFO, "User wants to read file %s in mode %s", filename, mode);
+
+        ret = send_file(file_realpath, mode, &cl_addr);
+        if (ret != 0)
+          LOG(LOG_WARN, "Write terminated with an error: %d", ret);
+        break;  // child process exits loop
       }
-
-      //init random seed
-      srand(time(NULL));
-
-      ret = tftp_msg_unpack_rrq(in_buffer, len, filename, mode);
-
-      path = malloc(strlen(filename)+strlen(directory)+2);
-      path[0] = '\0';
-
-      strcat(path, directory);
-      strcat(path, "/");  // TODO: handle trailing / 
-      strcat(path, filename);
-
-      LOG(LOG_INFO, "User wants to read file %s in mode %s", filename, mode);
-
-      ret = send_file(path, mode, &cl_addr);
-      if (ret != 0)
-        LOG(LOG_WARN, "Write terminated with an error: %d", ret);
-      break;  // child process exits loop
     } else{
       LOG(LOG_WARN, "Wrong op code: %d", type);
       tftp_send_error(4, "Illegal TFTP operation.", sd, &cl_addr);
-    } // father process continues loop
+      // main process continues loop
+    } 
   }
 
   LOG(LOG_INFO, "Exiting process %d", (int) getpid());
