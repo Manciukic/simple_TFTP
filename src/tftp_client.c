@@ -183,7 +183,7 @@ int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_por
     LOG(LOG_ERR, "Error while receiving file!");
     result = 16+ret;
   } else{
-    int n_blocks = m_fblock.written/m_fblock.block_size + 1;
+    int n_blocks = (m_fblock.written + m_fblock.block_size - 1)/m_fblock.block_size;
     printf("Trasferimento completato (%d/%d blocchi)\n", n_blocks, n_blocks);
     printf("Salvataggio %s completato.\n", local_filename);
 
