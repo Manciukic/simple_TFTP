@@ -210,6 +210,12 @@ int main(int argc, char** argv){
 
         ret = tftp_msg_unpack_rrq(in_buffer, len, filename, mode);
 
+        if (ret != 0){
+          LOG(LOG_WARN, "Error unpacking RRQ");
+          tftp_send_error(0, "Malformed RRQ packet.", sd, &cl_addr);
+          break; // child process exits loop  
+        }
+
         strcpy(file_path, dir_realpath);
         strcat(file_path, "/");
         strcat(file_path, filename);
