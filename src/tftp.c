@@ -174,9 +174,13 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
 
     exp_block_n++;
 
-    if (fblock_write(m_fblock, data, data_size))
-      return 6;
+    LOG(LOG_DEBUG, "Part %d has size %d", rcv_block_n, data_size);
 
+    if (data_size != 0){
+      if (fblock_write(m_fblock, data, data_size))
+        return 6;
+    }
+    
     LOG(LOG_DEBUG, "Sending ack");
 
     if (tftp_send_ack(rcv_block_n, out_buffer, sd, &cl_addr))
@@ -237,6 +241,8 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
 
     if (data_size != 0)
       fblock_read(m_fblock, data);
+
+    LOG(LOG_DEBUG, "Part %d has size %d", block_n, data_size);
 
     msglen = tftp_msg_get_size_data(data_size);
     tftp_msg_build_data(block_n, data, data_size, out_buffer);
