@@ -200,7 +200,11 @@ int main(int argc, char** argv){
     LOG(LOG_INFO, "Received message with type %d from %s", type, addr_str);
     if (type == TFTP_TYPE_RRQ){
       pid = fork();
-      if (pid != 0){  // father
+      if (pid == -1){ // error
+        LOG(LOG_FATAL, "Fork error");
+        perror("Fork error:");
+        return 1;
+      } else if (pid != 0 ){  // father
         LOG(LOG_INFO, "Received RRQ, spawned new process %d", (int) pid);
         continue; // father process continues loop
       } else{         // child
