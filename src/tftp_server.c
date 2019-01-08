@@ -8,7 +8,7 @@
 
 
 /** Defines log level to this file. */
-#define LOG_LEVEL LOG_DEBUG
+#define LOG_LEVEL LOG_INFO
 
 #define _GNU_SOURCE
 #include <stdlib.h>
@@ -18,6 +18,7 @@
 #include "include/fblock.h"
 #include "include/inet_utils.h"
 #include "include/debug_utils.h"
+#include "include/netascii.h"
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -88,8 +89,9 @@ void print_help(){
 int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
   struct sockaddr_in my_addr;
   int sd;
-  int ret, tid;
+  int ret, tid, result;
   struct fblock m_fblock;
+  char *tmp_filename;
 
   sd = socket(AF_INET, SOCK_DGRAM, 0);
   my_addr = make_my_sockaddr_in(0);
@@ -105,7 +107,11 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
   if (strcmp(mode, TFTP_STR_OCTET) == 0){
     m_fblock = fblock_open(filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_BINARY);
   } else if (strcmp(mode, TFTP_STR_NETASCII) == 0){
-    m_fblock = fblock_open(filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_TEXT);
+    tmp_filename = malloc(strlen(filename)+5);
+    strcpy(tmp_filename, filename);
+    strcat(tmp_filename, ".tmp");
+    unix2netascii(filename, tmp_filename);   
+    m_fblock = fblock_open(tmp_filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_TEXT);
   } else{
     LOG(LOG_ERR, "Unknown mode: %s", mode);
     return 2;
@@ -114,21 +120,29 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
   if (m_fblock.file == NULL){
     LOG(LOG_WARN, "Error opening file. Not found?");
     tftp_send_error(1, "File not found.", sd, cl_addr);
-    return 1;
+    result = 1;
+  } else{
+    LOG(LOG_INFO, "Sending file...");
+    ret = tftp_send_file(&m_fblock, sd, cl_addr);
+    
+    if (ret != 0){
+      LOG(LOG_ERR, "Error sending file: %d", ret);
+      result = 16+ret;
+    } else{
+      LOG(LOG_INFO, "File sent successfully");
+      result = 0;
+    }
   }
 
-  LOG(LOG_INFO, "Sending file...");
-
-  ret = tftp_send_file(&m_fblock, sd, cl_addr);
   fblock_close(&m_fblock);
 
-  if (ret != 0){
-    LOG(LOG_ERR, "Error sending file: %d", ret);
-    return 16+ret;
+  if (strcmp(mode, TFTP_STR_NETASCII) == 0){
+    LOG(LOG_DEBUG, "Removing temp file %s", tmp_filename);
+    remove(tmp_filename);
+    free(tmp_filename);
   }
 
-  LOG(LOG_INFO, "File sent successfully");
-  return 0;
+  return result;
 }
 
 /** Main */

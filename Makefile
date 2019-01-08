@@ -11,7 +11,7 @@ DOCDIR  = doc
 DOCTMPDIR = build/doc
 
 # List of targets
-UTILS   = fblock tftp_msgs inet_utils debug_utils tftp
+UTILS   = fblock tftp_msgs inet_utils debug_utils tftp netascii
 TARGETS = tftp_client tftp_server
 
 DOCPDFNAME = TFTP_documentation.pdf

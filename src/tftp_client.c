@@ -14,6 +14,7 @@
 #include "include/fblock.h"
 #include "include/inet_utils.h"
 #include "include/debug_utils.h"
+#include "include/netascii.h"
 #include <arpa/inet.h>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -132,17 +133,21 @@ void cmd_mode(char* new_mode){
 int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_port){
   struct sockaddr_in my_addr, sv_addr;
   int sd;
-  int ret, tid;
+  int ret, tid, result;
   struct fblock m_fblock;
+  char *tmp_filename;
 
   LOG(LOG_INFO, "Initializing...\n");
 
   sd = socket(AF_INET, SOCK_DGRAM, 0);
   if (strcmp(transfer_mode, TFTP_STR_OCTET) == 0)
     m_fblock = fblock_open(local_filename, TFTP_DATA_BLOCK, FBLOCK_WRITE|FBLOCK_MODE_BINARY);
-  else if (strcmp(transfer_mode, TFTP_STR_NETASCII) == 0)
-    m_fblock = fblock_open(local_filename, TFTP_DATA_BLOCK, FBLOCK_WRITE|FBLOCK_MODE_TEXT);
-  else
+  else if (strcmp(transfer_mode, TFTP_STR_NETASCII) == 0){
+    tmp_filename = malloc(strlen(local_filename)+5);
+    strcpy(tmp_filename, local_filename);
+    strcat(tmp_filename, ".tmp");
+    m_fblock = fblock_open(tmp_filename, TFTP_DATA_BLOCK, FBLOCK_WRITE|FBLOCK_MODE_TEXT);
+  }else
     return 2;
 
   LOG(LOG_INFO, "Opening socket...");
@@ -169,22 +174,30 @@ int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_por
   printf("Trasferimento file in corso.\n");
 
   ret = tftp_receive_file(&m_fblock, sd, &sv_addr);
+
   
   if (ret == 1){    // File not found
     printf("File non trovato.\n");
-    fblock_close(&m_fblock);
-    return 0;
+    result = 0;
   } else if (ret != 0){
     LOG(LOG_ERR, "Error while receiving file!");
-    fblock_close(&m_fblock);
-    return 16+ret;
+    result = 16+ret;
   } else{
     int n_blocks = m_fblock.written/m_fblock.block_size + 1;
     printf("Trasferimento completato (%d/%d blocchi)\n", n_blocks, n_blocks);
     printf("Salvataggio %s completato.\n", local_filename);
-    fblock_close(&m_fblock);
-    return 0;
+
+    result = 0;
   }
+
+  fblock_close(&m_fblock);
+  if (strcmp(transfer_mode, TFTP_STR_NETASCII) == 0){
+    netascii2unix(tmp_filename, local_filename);
+    remove(tmp_filename);
+    free(tmp_filename);
+  }
+
+  return result;
 
 }
 
