@@ -35,6 +35,45 @@
 /** Maximum length for a RRQ message */
 #define MAX_MSG_LEN TFTP_MAX_MODE_LEN+TFTP_MAX_FILENAME_LEN+4
 
+
+/** Finds longest common prefix length of strings str1 and str2 */
+int strlcpl(const char* str1, const char* str2){
+  int n;
+  for (n = 0; str1[n] != '\0' && str2[n] != '\0' && str1[n] == str2[n]; n++);
+  return n;
+}
+
+/** 
+ * Check whether file is inside dir.
+ * 
+ * @param path  file absolute path (can include .. and .  and multiple /)
+ * @param dir   directory real path (can't include .. and . and multiple /)
+ * @return      1 if true, 0 otherwise
+ * 
+ * @see realpath
+ */
+int path_inside_dir(char* path, char* dir){
+  char *parent, *orig_parent, *ret_realpath;
+  char parent_realpath[PATH_MAX];
+  int result;
+
+  orig_parent = parent = malloc(strlen(path) + 1);
+  strcpy(parent, path);
+
+  do{
+    parent = dirname(parent);
+    ret_realpath = realpath(parent, parent_realpath);
+  } while (ret_realpath == NULL);
+
+  if (strlcpl(parent_realpath, dir) < strlen(dir))
+    result = 0;
+  else
+    result = 1;
+  
+  free(orig_parent);
+  return result;
+}
+
 /**
  * Prints command usage information.
  */
@@ -153,16 +192,9 @@ int main(int argc, char** argv){
         strcpy(file_path, dir_realpath);
         strcat(file_path, "/");
         strcat(file_path, filename);
-        ret_realpath = realpath(file_path, file_realpath);
-
-        if (ret_realpath == NULL){
-          LOG(LOG_WARN, "File not found: %s", file_path);
-          tftp_send_error(1, "File Not Found.", sd, &cl_addr);
-          break; // child process exits loop
-        }
-
+        
         // check if file is inside directory (or inside any of its subdirectories)
-        if (strncmp(file_realpath, dir_realpath, strlen(dir_realpath)) != 0){
+        if (!path_inside_dir(file_path, dir_realpath)){
           // it is not! I caught you, Trudy!
           LOG(LOG_WARN, "User tried to access file %s outside set directory %s", 
               file_realpath, 
@@ -170,6 +202,15 @@ int main(int argc, char** argv){
           );
 
           tftp_send_error(4, "Access violation.", sd, &cl_addr);
+          break; // child process exits loop              
+        }
+
+        ret_realpath = realpath(file_path, file_realpath);
+
+        // file not found
+        if (ret_realpath == NULL){
+          LOG(LOG_WARN, "File not found: %s", file_path);
+          tftp_send_error(1, "File Not Found.", sd, &cl_addr);
           break; // child process exits loop
         }
 
