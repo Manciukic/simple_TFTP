@@ -12,9 +12,11 @@
 
 
 #include "include/tftp_msgs.h"
+#include "include/logging.h"
 #include <string.h>
 #include <stdio.h>
-#include "include/logging.h"
+#include <arpa/inet.h>
+#include <stdint.h>
 
 
 int tftp_msg_type(char *buffer){
@@ -126,8 +128,7 @@ int tftp_msg_get_size_wrq(char* filename, char* mode){
 void tftp_msg_build_data(int block_n, char* data, int data_size, char* buffer){
   buffer[0] = 0;
   buffer[1] = 3;
-  buffer[2] = block_n >> 8;
-  buffer[3] = block_n;
+  *((uint16_t*)(buffer+2)) = htons((uint16_t) block_n);
   buffer += 4;
   memcpy(buffer, data, data_size);
 }
@@ -144,7 +145,7 @@ int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data,
     return 2;
   }
 
-  *block_n = (((int)buffer[2]) << 8) + buffer[3];
+  *block_n = (int) ntohs(*((uint16_t*)(buffer+2)));
   *data_size = buffer_len - 4;
   if (*data_size > 0)
     memcpy(data, buffer+4, *data_size);
@@ -160,8 +161,7 @@ int tftp_msg_get_size_data(int data_size){
 void tftp_msg_build_ack(int block_n, char* buffer){
   buffer[0] = 0;
   buffer[1] = 4;
-  buffer[2] = block_n >> 8;
-  buffer[3] = block_n;
+  *((uint16_t*)(buffer+2)) = htons((uint16_t) block_n);
 }
 
 
@@ -175,7 +175,7 @@ int tftp_msg_unpack_ack(char* buffer, int buffer_len, int* block_n){
     LOG(LOG_ERR, "Wrong packet size for ACK: %d != 4", buffer_len);
     return 2;
   }
-  *block_n = (((int)buffer[2]) << 8) + buffer[3];
+  *block_n = (int) ntohs(*((uint16_t*)(buffer+2)));
   return 0;
 }
 
@@ -188,8 +188,7 @@ int tftp_msg_get_size_ack(){
 void tftp_msg_build_error(int error_code, char* error_msg, char* buffer){
   buffer[0] = 0;
   buffer[1] = 5;
-  buffer[2] = error_code >> 8;
-  buffer[3] = error_code;
+  *((uint16_t*)(buffer+2)) = htons((uint16_t) error_code);
   buffer += 4;
   strcpy(buffer, error_msg);
 }
@@ -201,7 +200,7 @@ int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, char* e
       return 1;
     }
 
-    *error_code = (((int)buffer[2]) << 8) + buffer[3];
+    *error_code = (int) ntohs(*((uint16_t*)(buffer+2)));
     if (*error_code < 0 || *error_code > 7){
       LOG(LOG_ERR, "Unrecognized error code: %d", *error_code);
       return 4;
