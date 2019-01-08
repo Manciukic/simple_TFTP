@@ -24,6 +24,7 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <string.h>
+#include <strings.h>
 #include <stdio.h>
 #include "include/logging.h"
 #include <sys/types.h>
@@ -100,17 +101,21 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
     LOG(LOG_ERR, "Could not bind to random port");
     perror("Could not bind to random port:");
     fblock_close(&m_fblock);
-    return 2;
+    return 4;
   } else
     LOG(LOG_INFO, "Bound to port %d", tid);
 
-  if (strcmp(mode, TFTP_STR_OCTET) == 0){
+  if (strcasecmp(mode, TFTP_STR_OCTET) == 0){
     m_fblock = fblock_open(filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_BINARY);
-  } else if (strcmp(mode, TFTP_STR_NETASCII) == 0){
+  } else if (strcasecmp(mode, TFTP_STR_NETASCII) == 0){
     tmp_filename = malloc(strlen(filename)+5);
     strcpy(tmp_filename, filename);
     strcat(tmp_filename, ".tmp");
-    unix2netascii(filename, tmp_filename);   
+    ret = unix2netascii(filename, tmp_filename);   
+    if (ret != 0){
+      LOG(LOG_ERR, "Error converting text file to netascii: %d", ret);
+      return 3;
+    }
     m_fblock = fblock_open(tmp_filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_TEXT);
   } else{
     LOG(LOG_ERR, "Unknown mode: %s", mode);
@@ -136,7 +141,7 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
 
   fblock_close(&m_fblock);
 
-  if (strcmp(mode, TFTP_STR_NETASCII) == 0){
+  if (strcasecmp(mode, TFTP_STR_NETASCII) == 0){
     LOG(LOG_DEBUG, "Removing temp file %s", tmp_filename);
     remove(tmp_filename);
     free(tmp_filename);
@@ -157,6 +162,7 @@ int main(int argc, char** argv){
   int sd;
   struct sockaddr_in my_addr, cl_addr;
   int pid;
+  char addr_str[MAX_SOCKADDR_STR_LEN];
 
   if (argc != 3){
     print_help();
@@ -188,7 +194,8 @@ int main(int argc, char** argv){
   while (1){
     len = recvfrom(sd, in_buffer, MAX_MSG_LEN, 0, (struct sockaddr*)&cl_addr, &addrlen);
     type = tftp_msg_type(in_buffer);
-    LOG(LOG_DEBUG, "Received message with type %d", type);
+    sockaddr_in_to_string(cl_addr, addr_str);
+    LOG(LOG_INFO, "Received message with type %d from %s", type, addr_str);
     if (type == TFTP_TYPE_RRQ){
       pid = fork();
       if (pid != 0){  // father
