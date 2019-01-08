@@ -5,9 +5,6 @@
  * @brief Implementation of the TFTP client that can only make read requests.
  */
 
-/** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
-
 
 #include "include/logging.h"
 #include "include/tftp_msgs.h"
@@ -24,6 +21,9 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <time.h>
+
+/** Defining LOG_LEVEL for tftp_client executable */
+const int LOG_LEVEL = LOG_WARN;
 
 
 /** max stdin line length */

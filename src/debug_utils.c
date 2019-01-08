@@ -15,6 +15,10 @@
 #include <string.h>
 
 
+/** LOG_LEVEL will be defined in another file */
+extern const int LOG_LEVEL;
+
+
 void dump_buffer_hex(char* buffer, int len){
   char *str, tmp[4];
 

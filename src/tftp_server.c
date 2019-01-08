@@ -8,9 +8,6 @@
  */
 
 
-/** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
-
 #define _GNU_SOURCE
 #include <stdlib.h>
 
@@ -33,6 +30,10 @@
 #include <time.h>
 #include <linux/limits.h>
 #include <libgen.h>
+
+
+/** Defining LOG_LEVEL for tftp_server executable */
+const int LOG_LEVEL = LOG_INFO;
 
 
 /** Maximum length for a RRQ message */

@@ -14,7 +14,18 @@
  *  - debug (LOG_DEBUG)
  * 
  * The first three will be outputted to stderr, the latter two to stdout.
- * You can define a per-file LOG_LEVEL for hiding some of the logging messages.
+ * 
+ * You can define a LOG_LEVEL for hiding some of the logging messages in a 
+ * per-executable basis.
+ * In order to do so, you need to put
+ * ```
+ * const int LOG_LEVEL = LOG_INFO;
+ * ```
+ * in the file containing the main and 
+ * ```
+ * extern const int LOG_LEVEL;
+ * ```
+ * in any other file using this macro.
  * 
  * Adapted from https://stackoverflow.com/a/328660
  */
@@ -33,11 +44,6 @@
 #define LOG_WARN     (3)
 #define LOG_INFO     (4)
 #define LOG_DEBUG    (5)
-
-
-#ifndef LOG_LEVEL
-  #define LOG_LEVEL LOG_DEBUG
-#endif
 
 
 #define LOG(level, ...) do {  \

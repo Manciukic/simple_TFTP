@@ -13,6 +13,10 @@
 #include <stdio.h>
 
 
+/** LOG_LEVEL will be defined in another file */
+extern const int LOG_LEVEL;
+
+
 int unix2netascii(char *unix_filename, char* netascii_filename){
   FILE *unixf, *netasciif;
   char prev, tmp;

@@ -8,10 +8,6 @@
  */
 
 
-/** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
-
-
 #include "include/inet_utils.h"
 #include <stdlib.h>
 #include <string.h>
@@ -19,6 +15,10 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 #include "include/logging.h"
+
+
+/** LOG_LEVEL will be defined in another file */
+extern const int LOG_LEVEL;
 
 
 int bind_random_port(int socket, struct sockaddr_in *addr){

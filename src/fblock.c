@@ -7,14 +7,15 @@
  * @see fblock.h
  */
 
-/** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
-
 
 #include "include/fblock.h"
 #include <stdio.h>
 #include <string.h>
 #include "include/logging.h"
+
+
+/** LOG_LEVEL will be defined in another file */
+extern const int LOG_LEVEL;
 
 
 /**

@@ -8,10 +8,6 @@
  */
 
 
-/** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
-
-
 #include "include/tftp_msgs.h"
 #include "include/logging.h"
 #include <string.h>
@@ -19,6 +15,10 @@
 #include <stdio.h>
 #include <arpa/inet.h>
 #include <stdint.h>
+
+
+/** LOG_LEVEL will be defined in another file */
+extern const int LOG_LEVEL;
 
 
 int tftp_msg_type(char *buffer){

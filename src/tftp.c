@@ -8,9 +8,6 @@
  */
 
 
-/** Defines log level to this file. */
-#define LOG_LEVEL LOG_INFO
-
 #include "include/fblock.h"
 #include "include/tftp_msgs.h"
 #include "include/debug_utils.h"
@@ -20,6 +17,10 @@
 #include <netinet/in.h>
 #include <stdlib.h>
 #include "include/logging.h"
+
+
+/** LOG_LEVEL will be defined in another file */
+extern const int LOG_LEVEL;
 
 
 int tftp_send_rrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
