@@ -59,3 +59,27 @@ struct sockaddr_in make_my_sockaddr_in(int port){
   addr.sin_addr.s_addr = htonl(INADDR_ANY);
   return addr;
 }
+
+
+int sockaddr_in_cmp(struct sockaddr_in sai1, struct sockaddr_in sai2){
+  if (sai1.sin_port == sai2.sin_port && sai1.sin_addr.s_addr == sai2.sin_addr.s_addr)
+    return 0;
+  else
+    return 1;
+}
+
+void sockaddr_in_to_string(struct sockaddr_in src, char *dst){
+  char* port_str;
+
+  port_str = malloc(6);
+  sprintf(port_str, "%d", ntohs(src.sin_port));
+
+  if (inet_ntop(AF_INET, (void*) &src.sin_addr, dst, MAX_SOCKADDR_STR_LEN) != NULL){
+    strcat(dst, ":");
+    strcat(dst, port_str);
+  } else{
+    strcpy(dst, "ERROR");
+  }
+
+  free(port_str);
+}
