@@ -120,8 +120,8 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
       sockaddr_in_to_string(cl_addr, addr_str); 
     
       if (addr->sin_addr.s_addr != cl_addr.sin_addr.s_addr){
-        LOG(LOG_ERR, "Received message from unexpected source: %s", addr_str);
-        return 9;
+        LOG(LOG_WARN, "Received message from unexpected source: %s", addr_str);
+        continue;
       } else{
         LOG(LOG_INFO, "Receiving packets from %s", addr_str);
         orig_cl_addr = cl_addr;
@@ -130,8 +130,8 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
       if (sockaddr_in_cmp(orig_cl_addr, cl_addr) != 0){
         char addr_str[MAX_SOCKADDR_STR_LEN];
         sockaddr_in_to_string(cl_addr, addr_str); 
-        LOG(LOG_ERR, "Received message from unexpected source: %s", addr_str);
-        return 9;
+        LOG(LOG_WARN, "Received message from unexpected source: %s", addr_str);
+        continue;
       } else{
         LOG(LOG_DEBUG, "Sender is the same!");
       }
@@ -205,7 +205,7 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
   if (sockaddr_in_cmp(*addr, cl_addr) != 0){
     char str_addr[MAX_SOCKADDR_STR_LEN];
     sockaddr_in_to_string(cl_addr, str_addr);
-    LOG(LOG_ERR, "Message is coming from unexpected source: %s", str_addr);
+    LOG(LOG_WARN, "Message is coming from unexpected source: %s", str_addr);
     return 2;
   }
 
@@ -227,7 +227,7 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
 int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
   char in_buffer[4], data[TFTP_DATA_BLOCK], out_buffer[TFTP_MAX_DATA_MSG_SIZE];
   int block_n, rcv_block_n;
-  int len, data_size, msglen;
+  int len, data_size, msglen, ret;
 
   // init sequence number
   block_n = 1;
@@ -258,7 +258,11 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
 
     LOG(LOG_DEBUG, "Waiting for ack");
 
-    if (tftp_receive_ack(&rcv_block_n, in_buffer, sd, addr)){
+    ret = tftp_receive_ack(&rcv_block_n, in_buffer, sd, addr);
+
+    if (ret == 2){  //unexpected source
+      continue;
+    } else{
       LOG(LOG_ERR, "Error receiving ack");
       return 2;
     }
