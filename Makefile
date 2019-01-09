@@ -62,7 +62,7 @@ ALL_SOURCES += $(addprefix src/,$(addsuffix .c,$(TARGETS)))
 # Build source code ps file
 $(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME)) : $(SRCDIR)/*.c $(HDRDIR)/*.h
 	echo $(ALL_SOURCES)
-	enscript -C --highlight=c -p$(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME)) $(ALL_SOURCES)
+	enscript -C -fCourier9 --highlight=c -p$(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME)) $(ALL_SOURCES)
 
 # Builds source code pdf file
 $(DOCDIR)/$(SRCPDFNAME): $(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME))
