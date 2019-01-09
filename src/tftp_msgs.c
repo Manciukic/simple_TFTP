@@ -22,13 +22,12 @@ extern const int LOG_LEVEL;
 
 
 int tftp_msg_type(char *buffer){
-  return (((int)buffer[0]) << 8) + buffer[1];
+  return (int) ntohs(*(uint16_t*)buffer);
 }
 
 
 void tftp_msg_build_rrq(char* filename, char* mode, char* buffer){
-  buffer[0] = 0;
-  buffer[1] = 1;
+  *((uint16_t*)buffer) = htons(TFTP_TYPE_RRQ);
   buffer += 2;
   strcpy(buffer, filename);
   buffer += strlen(filename)+1;
@@ -77,8 +76,7 @@ int tftp_msg_get_size_rrq(char* filename, char* mode){
 
 
 void tftp_msg_build_wrq(char* filename, char* mode, char* buffer){
-  buffer[0] = 0;
-  buffer[1] = 2;
+  *((uint16_t*)buffer) = htons(TFTP_TYPE_WRQ);
   buffer += 2;
   strcpy(buffer, filename);
   buffer += strlen(filename)+1;
@@ -128,8 +126,7 @@ int tftp_msg_get_size_wrq(char* filename, char* mode){
 
 
 void tftp_msg_build_data(int block_n, char* data, int data_size, char* buffer){
-  buffer[0] = 0;
-  buffer[1] = 3;
+  *((uint16_t*)buffer) = htons(TFTP_TYPE_DATA);
   *((uint16_t*)(buffer+2)) = htons((uint16_t) block_n);
   buffer += 4;
   memcpy(buffer, data, data_size);
@@ -161,8 +158,7 @@ int tftp_msg_get_size_data(int data_size){
 
 
 void tftp_msg_build_ack(int block_n, char* buffer){
-  buffer[0] = 0;
-  buffer[1] = 4;
+  *((uint16_t*)buffer) = htons(TFTP_TYPE_ACK);
   *((uint16_t*)(buffer+2)) = htons((uint16_t) block_n);
 }
 
@@ -188,8 +184,7 @@ int tftp_msg_get_size_ack(){
 
 
 void tftp_msg_build_error(int error_code, char* error_msg, char* buffer){
-  buffer[0] = 0;
-  buffer[1] = 5;
+  *((uint16_t*)buffer) = htons(TFTP_TYPE_ERROR);
   *((uint16_t*)(buffer+2)) = htons((uint16_t) error_code);
   buffer += 4;
   strcpy(buffer, error_msg);
