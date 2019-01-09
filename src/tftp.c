@@ -10,13 +10,14 @@
 
 #include "include/fblock.h"
 #include "include/tftp_msgs.h"
+#include "include/tftp.h"
 #include "include/debug_utils.h"
 #include "include/inet_utils.h"
+#include "include/logging.h"
 #include <arpa/inet.h>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <stdlib.h>
-#include "include/logging.h"
 
 
 /** LOG_LEVEL will be defined in another file */
@@ -229,6 +230,12 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
   char in_buffer[4], data[TFTP_DATA_BLOCK], out_buffer[TFTP_MAX_DATA_MSG_SIZE];
   int block_n, rcv_block_n;
   int len, data_size, msglen, ret;
+
+  if (m_fblock->remaining > TFTP_MAX_FILE_SIZE){
+    LOG(LOG_ERR, "File is too big: %d", m_fblock->remaining);
+    tftp_send_error(0, "File is too big.", sd, addr);
+    return 4;
+  }
 
   // init sequence number
   block_n = 1;

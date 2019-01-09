@@ -20,6 +20,9 @@
 #include <netinet/in.h>
 #include "fblock.h"
 
+/** Maximum file size to prevent block # overflow */
+#define TFTP_MAX_FILE_SIZE 33554431
+
 
 /**
  * Send a RRQ message to a server.
@@ -134,7 +137,7 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
  * - 1 in case of error sending a packet.
  * - 2 in case of error while receiving the ack.
  * - 3 in case of unexpected sequence number in ack.
- * - 4 in case of an error while unpacking data.
+ * - 4 in case of file too big
  */
 int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr);
 

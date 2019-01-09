@@ -42,8 +42,8 @@ struct fblock{
   int block_size;  /**< Predefined block size for i/o operations */
   char mode;  /**< Can be read xor write, text xor binary. */
   union{
-    int written;  /**< Bytes already written (for future use) */
-    int remaining;  /**< Remaining bytes to read  */
+    unsigned int written;  /**< Bytes already written (for future use) */
+    unsigned int remaining;  /**< Remaining bytes to read  */
   };
 };
 
