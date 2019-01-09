@@ -74,7 +74,10 @@ int unix2netascii(char *unix_filename, char* netascii_filename){
     LOG(LOG_ERR, "Error writing to file %s", netascii_filename);
     result = 3;
   } else{
-    LOG(LOG_INFO, "Unix file %s converted to netascii file %s", unix_filename, netascii_filename);
+    LOG(LOG_INFO, "Unix file %s converted to netascii file %s", 
+        unix_filename, 
+        netascii_filename
+    );
     result = 0;
   }
 
@@ -140,7 +143,10 @@ int netascii2unix(char* netascii_filename, char *unix_filename){
       LOG(LOG_ERR, "Error writing to file %s", unix_filename);
       result = 3;
     } else{
-      LOG(LOG_INFO, "Netascii file %s converted to Unix file %s", netascii_filename, unix_filename);
+      LOG(LOG_INFO, "Netascii file %s converted to Unix file %s", 
+          netascii_filename, 
+          unix_filename
+      );
       result = 0;
     }
   } // otherwise there was an error (4 or 5) and result was already set

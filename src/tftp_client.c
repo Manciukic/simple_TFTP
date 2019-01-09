@@ -51,7 +51,8 @@ char* transfer_mode;
 /**
  * Splits a string at each delim.
  * 
- * Trailing LF will be removed. Consecutive delimiters will be considered as one.
+ * Trailing LF will be removed. Consecutive delimiters will be considered as 
+ * one.
  * 
  * @param line [in]     the string to split
  * @param delim [in]    the delimiter
@@ -59,7 +60,8 @@ char* transfer_mode;
  * @param argc [out]    counts of the parts the line is split into
  * @param argv [out]    array of parts the line is split into
  */
-void split_string(char* line, char* delim, int max_argc, int *argc, char **argv){
+void split_string(char* line, char* delim, int max_argc, int *argc, 
+                  char **argv){
   char *ptr;
   int len;/**
  * Prints command usage information.
@@ -106,8 +108,10 @@ void print_help(){
 void cmd_help(){
   printf("Sono disponibili i seguenti comandi:\n");
   printf("!help --> mostra l'elenco dei comandi disponibili\n");
-  printf("!mode {txt|bin} --> imposta il modo di trasferimento dei file (testo o binario)\n");
-  printf("!get filename nome_locale --> richiede al server il nome del file <filename> e lo salva localmente con il nome <nome_locale>\n");
+  printf("!mode {txt|bin} --> imposta il modo di trasferimento ");
+  printf("dei file (testo o binario)\n");
+  printf("!get filename nome_locale --> richiede al server il nome del file ");
+  printf("<filename> e lo salva localmente con il nome <nome_locale>\n");
   printf("!quit --> termina il client\n");
 }
 
@@ -124,14 +128,17 @@ void cmd_mode(char* new_mode){
     transfer_mode = TFTP_STR_OCTET;
     printf("Modo di trasferimento binario configurato\n");
   } else{
-    printf("Modo di traferimento sconosciuto: %s. Modi disponibili: txt, bin\n", new_mode);
+    printf("Modo di traferimento sconosciuto: %s. Modi disponibili: txt, bin\n", 
+           new_mode
+    );
   }
 }
 
 /**
  * Handles !get command, reading file from server.
  */
-int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_port){
+int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, 
+            int sv_port){
   struct sockaddr_in my_addr, sv_addr;
   int sd;
   int ret, tid, result;
@@ -142,12 +149,18 @@ int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_por
 
   sd = socket(AF_INET, SOCK_DGRAM, 0);
   if (strcmp(transfer_mode, TFTP_STR_OCTET) == 0)
-    m_fblock = fblock_open(local_filename, TFTP_DATA_BLOCK, FBLOCK_WRITE|FBLOCK_MODE_BINARY);
+    m_fblock = fblock_open(local_filename, 
+                           TFTP_DATA_BLOCK, 
+                           FBLOCK_WRITE|FBLOCK_MODE_BINARY
+    );
   else if (strcmp(transfer_mode, TFTP_STR_NETASCII) == 0){
     tmp_filename = malloc(strlen(local_filename)+5);
     strcpy(tmp_filename, local_filename);
     strcat(tmp_filename, ".tmp");
-    m_fblock = fblock_open(tmp_filename, TFTP_DATA_BLOCK, FBLOCK_WRITE|FBLOCK_MODE_TEXT);
+    m_fblock = fblock_open(tmp_filename, 
+                           TFTP_DATA_BLOCK, 
+                           FBLOCK_WRITE|FBLOCK_MODE_TEXT
+    );
   }else
     return 2;
 
@@ -164,7 +177,10 @@ int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_por
   } else
     LOG(LOG_INFO, "Bound to port %d", tid);
 
-  printf("Richiesta file %s (%s) al server in corso.\n", remote_filename, transfer_mode);
+  printf("Richiesta file %s (%s) al server in corso.\n", 
+         remote_filename, 
+         transfer_mode
+  );
 
   ret = tftp_send_rrq(remote_filename, transfer_mode, sd, &sv_addr);
   if (ret != 0){
@@ -184,7 +200,7 @@ int cmd_get(char* remote_filename, char* local_filename, char* sv_ip, int sv_por
     LOG(LOG_ERR, "Error while receiving file!");
     result = 16+ret;
   } else{
-    int n_blocks = (m_fblock.written + m_fblock.block_size - 1)/m_fblock.block_size;
+    int n_blocks = (m_fblock.written+m_fblock.block_size-1)/m_fblock.block_size;
     printf("Trasferimento completato (%d/%d blocchi)\n", n_blocks, n_blocks);
     printf("Salvataggio %s completato.\n", local_filename);
 
@@ -254,7 +270,8 @@ int main(int argc, char** argv){
           ret = cmd_get(cmd_argv[1], cmd_argv[2], sv_ip, sv_port);
           LOG(LOG_DEBUG, "cmd_get returned value: %d", ret);
         } else{
-           printf("Il comando richiede due argomenti: <filename> e <nome_locale>\n");
+           printf("Il comando richiede due argomenti:");
+           printf(" <filename> e <nome_locale>\n");
         }
       } else if (strcmp(cmd_argv[0], "!quit") == 0){
         if (cmd_argc == 1){

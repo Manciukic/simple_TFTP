@@ -32,7 +32,10 @@ int tftp_send_rrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
   out_buffer = malloc(msglen);
 
   tftp_msg_build_rrq(filename, mode, out_buffer);
-  len = sendto(sd, out_buffer, msglen, 0, (struct sockaddr*) addr, sizeof(*addr));
+  len = sendto(sd, out_buffer, msglen, 0, 
+               (struct sockaddr*) addr, 
+               sizeof(*addr)
+  );
   if (len != msglen){
     LOG(LOG_ERR, "Error sending RRQ: len (%d) != msglen (%d)", len, msglen);
     perror("Error");
@@ -52,7 +55,10 @@ int tftp_send_wrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
   out_buffer = malloc(msglen);
 
   tftp_msg_build_wrq(filename, mode, out_buffer);
-  len = sendto(sd, out_buffer, msglen, 0, (struct sockaddr*) addr, sizeof(*addr));
+  len = sendto(sd, out_buffer, msglen, 0, 
+               (struct sockaddr*) addr, 
+               sizeof(*addr)
+  );
   if (len != msglen){
     LOG(LOG_ERR, "Error sending WRQ: len (%d) != msglen (%d)", len, msglen);
     perror("Error");
@@ -64,7 +70,8 @@ int tftp_send_wrq(char* filename, char *mode, int sd, struct sockaddr_in *addr){
 }
 
 
-int tftp_send_error(int error_code, char* error_msg, int sd, struct sockaddr_in *addr){
+int tftp_send_error(int error_code, char* error_msg, int sd, 
+                    struct sockaddr_in *addr){
   int msglen, len;
   char *out_buffer;
 
@@ -72,7 +79,10 @@ int tftp_send_error(int error_code, char* error_msg, int sd, struct sockaddr_in 
   out_buffer = malloc(msglen);
 
   tftp_msg_build_error(error_code, error_msg, out_buffer);
-  len = sendto(sd, out_buffer, msglen, 0, (struct sockaddr*) addr, sizeof(*addr));
+  len = sendto(sd, out_buffer, msglen, 0, 
+               (struct sockaddr*) addr, 
+               sizeof(*addr)
+  );
   if (len != msglen){
     LOG(LOG_ERR, "Error sending ERROR: len (%d) != msglen (%d)", len, msglen);
     perror("Error");
@@ -84,12 +94,16 @@ int tftp_send_error(int error_code, char* error_msg, int sd, struct sockaddr_in 
 }
 
 
-int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *addr){
+int tftp_send_ack(int block_n, char* out_buffer, int sd, 
+                  struct sockaddr_in *addr){
   int msglen, len;
 
   msglen = tftp_msg_get_size_ack();
   tftp_msg_build_ack(block_n, out_buffer);
-  len = sendto(sd, out_buffer, msglen, 0, (struct sockaddr*) addr, sizeof(*addr));
+  len = sendto(sd, out_buffer, msglen, 0, 
+               (struct sockaddr*) addr, 
+               sizeof(*addr)
+  );
 
  if (len != msglen){
     LOG(LOG_ERR, "Error sending ACK: len (%d) != msglen (%d)", len, msglen);
@@ -101,7 +115,8 @@ int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *add
 }
 
 
-int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
+int tftp_receive_file(struct fblock *m_fblock, int sd, 
+                      struct sockaddr_in *addr){
   char in_buffer[TFTP_MAX_DATA_MSG_SIZE], data[TFTP_DATA_BLOCK], out_buffer[4];
   int exp_block_n, rcv_block_n;
   int len, data_size, ret, type;
@@ -115,9 +130,14 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
 
   do{
     LOG(LOG_DEBUG, "Waiting for part %d", exp_block_n);
-    // TODO: check client == server ?
-    len = recvfrom(sd, in_buffer, tftp_msg_get_size_data(TFTP_DATA_BLOCK), 0, (struct sockaddr*)&cl_addr, &addrlen);
-    if (exp_block_n == 1){ // first block -> I need to save servers TID (aka its "original" sockaddr)
+    
+    len = recvfrom(sd, in_buffer, tftp_msg_get_size_data(TFTP_DATA_BLOCK), 0, 
+                   (struct sockaddr*)&cl_addr, 
+                   &addrlen
+    );
+
+    // first block -> I need to save servers TID (aka its "original" sockaddr)
+    if (exp_block_n == 1){
       char addr_str[MAX_SOCKADDR_STR_LEN];
       sockaddr_in_to_string(cl_addr, addr_str); 
     
@@ -159,7 +179,7 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
       }
 
     } else if (type != TFTP_TYPE_DATA){
-      LOG(LOG_ERR, "Received packet of type %d, expecting DATA or ERROR.", type);
+      LOG(LOG_ERR, "Received packet of type %d, expecting DATA or ERROR.",type);
       return 8;
     }
 
@@ -171,7 +191,11 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
     }
 
     if (rcv_block_n != exp_block_n){
-      LOG(LOG_ERR, "Received unexpected block_n: rcv_block_n = %d != %d = exp_block_n", rcv_block_n, exp_block_n);
+      LOG(LOG_ERR, 
+          "Received unexpected block_n: rcv_block_n = %d != %d = exp_block_n", 
+          rcv_block_n, 
+          exp_block_n
+      );
       return 3;
     }
 
@@ -194,7 +218,8 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
 }
 
 
-int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *addr){
+int tftp_receive_ack(int *block_n, char* in_buffer, int sd, 
+                     struct sockaddr_in *addr){
   int msglen, len, ret;
   unsigned int addrlen;
   struct sockaddr_in cl_addr;
@@ -202,7 +227,10 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
   msglen = tftp_msg_get_size_ack();
   addrlen = sizeof(cl_addr);
 
-  len = recvfrom(sd, in_buffer, msglen, 0, (struct sockaddr*)&cl_addr, &addrlen);
+  len = recvfrom(sd, in_buffer, msglen, 0, 
+                 (struct sockaddr*)&cl_addr, 
+                 &addrlen
+  );
 
   if (sockaddr_in_cmp(*addr, cl_addr) != 0){
     char str_addr[MAX_SOCKADDR_STR_LEN];
@@ -258,7 +286,10 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
     
     // dump_buffer_hex(out_buffer, msglen);
     
-    len = sendto(sd, out_buffer, msglen, 0, (struct sockaddr*)addr, sizeof(*addr));
+    len = sendto(sd, out_buffer, msglen, 0, 
+                 (struct sockaddr*)addr, 
+                 sizeof(*addr)
+    );
 
     if (len != msglen){
       return 1;
@@ -276,7 +307,10 @@ int tftp_send_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr){
     }
 
     if (rcv_block_n != block_n){
-      LOG(LOG_ERR, "Received wrong block n: received %d != expected %d", rcv_block_n, block_n);
+      LOG(LOG_ERR, "Received wrong block n: received %d != expected %d", 
+          rcv_block_n, 
+          block_n
+      );
       return 3;
     }
 

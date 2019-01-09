@@ -68,7 +68,8 @@ struct fblock fblock_open(char* filename, int block_size, char mode);
  *
  * @param m_fblock    fblock instance
  * @param buffer      block_size bytes buffer
- * @return            0 in case of success, otherwise number of bytes it could not read
+ * @return            0 in case of success, otherwise number of bytes it could 
+ *                    not read.
  */
 int fblock_read(struct fblock *m_fblock, char* buffer);
 
@@ -77,8 +78,10 @@ int fblock_read(struct fblock *m_fblock, char* buffer);
  *
  * @param m_fblock    fblock instance
  * @param buffer      block_size bytes buffer
- * @param block_size  if set to a non-0 value, override block_size defined in fblock.
- * @return            0 in case of success, otherwise number of bytes it could not write
+ * @param block_size  if set to a non-0 value, override block_size defined in 
+ *                    fblock.
+ * @return            0 in case of success, otherwise number of bytes it could 
+ *                    not write.
  */
 int fblock_write(struct fblock *m_fblock, char* buffer, int block_size);
 

@@ -28,7 +28,10 @@
 /** Maximum number of trials before giving up opening a random port */
 #define MAX_TRIES 256
 
-/** Maximum number of characters of INET address to string (eg 123.156.189.123:45678) */
+/** 
+ * Maximum number of characters of INET address to string 
+ * (eg 123.156.189.123:45678).
+ */
 #define MAX_SOCKADDR_STR_LEN 22
 
 

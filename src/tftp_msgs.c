@@ -44,14 +44,21 @@ int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode
 
   offset += 2;
   if (strlen(buffer+offset) > TFTP_MAX_FILENAME_LEN){
-    LOG(LOG_ERR, "Filename too long (%d > %d): %s", (int) strlen(buffer+offset), TFTP_MAX_FILENAME_LEN, buffer+offset);
+    LOG(LOG_ERR, "Filename too long (%d > %d): %s", 
+        (int) strlen(buffer+offset), 
+        TFTP_MAX_FILENAME_LEN, buffer+offset
+    );
     return 3;
   }
   strcpy(filename, buffer+offset);
 
   offset += strlen(filename)+1;
   if (strlen(buffer+offset) > TFTP_MAX_MODE_LEN){
-    LOG(LOG_ERR, "Mode string too long (%d > %d): %s", (int) strlen(buffer+offset), TFTP_MAX_MODE_LEN, buffer+offset);
+    LOG(LOG_ERR, "Mode string too long (%d > %d): %s", 
+        (int) strlen(buffer+offset), 
+        TFTP_MAX_MODE_LEN, 
+        buffer+offset
+    );
     return 4;
   }
   strcpy(mode, buffer+offset);
@@ -61,7 +68,8 @@ int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode
     LOG(LOG_ERR, "Packet contains unexpected fields");
     return 2;
   }
-  if (strcasecmp(mode, TFTP_STR_NETASCII) == 0 || strcasecmp(mode, TFTP_STR_OCTET) == 0)
+  if (strcasecmp(mode, TFTP_STR_NETASCII) == 0 || 
+      strcasecmp(mode, TFTP_STR_OCTET) == 0)
     return 0;
   else{
     LOG(LOG_ERR, "Unrecognized transfer mode: %s", mode);
@@ -84,7 +92,8 @@ void tftp_msg_build_wrq(char* filename, char* mode, char* buffer){
 }
 
 
-int tftp_msg_unpack_wrq(char* buffer, int buffer_len, char* filename, char* mode){
+int tftp_msg_unpack_wrq(char* buffer, int buffer_len, char* filename, 
+                        char* mode){
   int offset = 0;
   if (tftp_msg_type(buffer) != TFTP_TYPE_WRQ){
     LOG(LOG_ERR, "Expected WRQ message (2), found %d", tftp_msg_type(buffer));
@@ -93,14 +102,22 @@ int tftp_msg_unpack_wrq(char* buffer, int buffer_len, char* filename, char* mode
 
   offset += 2;
   if (strlen(buffer+offset) > TFTP_MAX_FILENAME_LEN){
-    LOG(LOG_ERR, "Filename too long (%d > %d): %s", (int) strlen(buffer+offset), TFTP_MAX_FILENAME_LEN, buffer+offset);
+    LOG(LOG_ERR, "Filename too long (%d > %d): %s", 
+        (int) strlen(buffer+offset), 
+        TFTP_MAX_FILENAME_LEN, 
+        buffer+offset
+    );
     return 3;
   }
 
   strcpy(filename, buffer+offset);
   offset += strlen(filename)+1;
   if (strlen(buffer+offset) > TFTP_MAX_MODE_LEN){
-    LOG(LOG_ERR, "Mode string too long (%d > %d): %s", (int) strlen(buffer+offset), TFTP_MAX_MODE_LEN, buffer+offset);
+    LOG(LOG_ERR, "Mode string too long (%d > %d): %s", 
+        (int) strlen(buffer+offset), 
+        TFTP_MAX_MODE_LEN, 
+        buffer+offset
+    );
     return 4;
   }
 
@@ -133,7 +150,8 @@ void tftp_msg_build_data(int block_n, char* data, int data_size, char* buffer){
 }
 
 
-int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data, int* data_size){
+int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data, 
+                         int* data_size){
   if (tftp_msg_type(buffer) != TFTP_TYPE_DATA){
     LOG(LOG_ERR, "Expected DATA message (3), found %d", tftp_msg_type(buffer));
     return 1;
@@ -191,9 +209,12 @@ void tftp_msg_build_error(int error_code, char* error_msg, char* buffer){
 }
 
 
-int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, char* error_msg){
+int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, 
+                          char* error_msg){
   if (tftp_msg_type(buffer) != TFTP_TYPE_ERROR){
-      LOG(LOG_ERR, "Expected ERROR message (5), found %d", tftp_msg_type(buffer));
+      LOG(LOG_ERR, "Expected ERROR message (5), found %d", 
+          tftp_msg_type(buffer)
+      );
       return 1;
     }
 
@@ -205,7 +226,11 @@ int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, char* e
 
     buffer += 4;
     if(strlen(buffer) > TFTP_MAX_ERROR_LEN){
-      LOG(LOG_ERR, "Error string too long (%d > %d): %s", (int) strlen(buffer), TFTP_MAX_ERROR_LEN, buffer);
+      LOG(LOG_ERR, "Error string too long (%d > %d): %s", 
+          (int) strlen(buffer), 
+          TFTP_MAX_ERROR_LEN, 
+          buffer
+      );
       return 3;
     }
 

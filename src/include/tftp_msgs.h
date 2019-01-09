@@ -111,7 +111,8 @@ void tftp_msg_build_rrq(char* filename, char* mode, char* buffer);
  * @see TFTP_STR_NETASCII
  * @see TFTP_STR_OCTET
  */
-int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode);
+int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, 
+                        char* mode);
 
 /**
  * Returns size in bytes of a read request message.
@@ -160,7 +161,8 @@ void tftp_msg_build_wrq(char* filename, char* mode, char* buffer);
  * @see TFTP_STR_NETASCII
  * @see TFTP_STR_OCTET
  */
-int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, char* mode);
+int tftp_msg_unpack_rrq(char* buffer, int buffer_len, char* filename, 
+                        char* mode);
 
 /**
  * Returns size in bytes of a write request message.
@@ -203,7 +205,8 @@ void tftp_msg_build_data(int block_n, char* data, int data_size, char* buffer);
  * 
  * @see TFTP_TYPE_DATA
  */
-int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data, int* data_size);
+int tftp_msg_unpack_data(char* buffer, int buffer_len, int* block_n, char* data, 
+                         int* data_size);
 
 /**
  * Returns size in bytes of a data message.
@@ -303,7 +306,8 @@ void tftp_msg_build_error(int error_code, char* error_msg, char* buffer);
  * @see TFTP_TYPE_ERROR
  * @see TFTP_MAX_ERROR_LEN
  */
-int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, char* error_msg);
+int tftp_msg_unpack_error(char* buffer, int buffer_len, int* error_code, 
+                          char* error_msg);
 
 /**
  * Returns size in bytes of an error message.

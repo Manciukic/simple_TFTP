@@ -108,7 +108,10 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
     LOG(LOG_INFO, "Bound to port %d", tid);
 
   if (strcasecmp(mode, TFTP_STR_OCTET) == 0){
-    m_fblock = fblock_open(filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_BINARY);
+    m_fblock = fblock_open(filename, 
+                           TFTP_DATA_BLOCK, 
+                           FBLOCK_READ|FBLOCK_MODE_BINARY
+    );
   } else if (strcasecmp(mode, TFTP_STR_NETASCII) == 0){
     tmp_filename = malloc(strlen(filename)+5);
     strcpy(tmp_filename, filename);
@@ -118,7 +121,10 @@ int send_file(char* filename, char* mode, struct sockaddr_in *cl_addr){
       LOG(LOG_ERR, "Error converting text file to netascii: %d", ret);
       return 3;
     }
-    m_fblock = fblock_open(tmp_filename, TFTP_DATA_BLOCK, FBLOCK_READ|FBLOCK_MODE_TEXT);
+    m_fblock = fblock_open(tmp_filename, 
+                           TFTP_DATA_BLOCK, 
+                           FBLOCK_READ|FBLOCK_MODE_TEXT
+    );
   } else{
     LOG(LOG_ERR, "Unknown mode: %s", mode);
     return 2;
@@ -194,7 +200,10 @@ int main(int argc, char** argv){
   LOG(LOG_INFO, "Server is running");
 
   while (1){
-    len = recvfrom(sd, in_buffer, MAX_MSG_LEN, 0, (struct sockaddr*)&cl_addr, &addrlen);
+    len = recvfrom(sd, in_buffer, MAX_MSG_LEN, 0, 
+                   (struct sockaddr*)&cl_addr, 
+                   &addrlen
+    );
     type = tftp_msg_type(in_buffer);
     sockaddr_in_to_string(cl_addr, addr_str);
     LOG(LOG_INFO, "Received message with type %d from %s", type, addr_str);
@@ -226,7 +235,7 @@ int main(int argc, char** argv){
         strcat(file_path, "/");
         strcat(file_path, filename);
         
-        // check if file is inside directory (or inside any of its subdirectories)
+        // check if file is inside directory (or inside any of its subdirs)
         if (!path_inside_dir(file_path, dir_realpath)){
           // it is not! I caught you, Trudy!
           LOG(LOG_WARN, "User tried to access file %s outside set directory %s", 

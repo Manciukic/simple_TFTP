@@ -62,11 +62,13 @@ int tftp_send_wrq(char* filename, char *mode, int sd, struct sockaddr_in *addr);
  * 
  * @param error_code the code of the error (must be within 0 and 7)
  * @param error_msg  the message explaining the error
- * @param sd         socket id of the (UDP) socket to be used to send the message
+ * @param sd         socket id of the (UDP) socket to be used to send the 
+ *                   message
  * @param addr       address of the client (server)
  * @return           0 in case of success, 1 otherwise
  */
-int tftp_send_error(int error_code, char* error_msg, int sd, struct sockaddr_in *addr);
+int tftp_send_error(int error_code, char* error_msg, int sd, 
+                    struct sockaddr_in *addr);
 
 /**
  * Send an ACK message.
@@ -75,12 +77,15 @@ int tftp_send_error(int error_code, char* error_msg, int sd, struct sockaddr_in 
  * server.
  * 
  * @param block_n    sequence number of the block to be acknowledged.
- * @param out_buffer buffer to be used for sending the ACK (useful for recycling the same buffer)
- * @param sd         socket id of the (UDP) socket to be used to send the message
+ * @param out_buffer buffer to be used for sending the ACK (useful for recycling 
+ *                   the same buffer)
+ * @param sd         socket id of the (UDP) socket to be used to send the 
+ *                   message
  * @param addr       address of recipient of the ACK
  * @return           0 in case of success, 1 otherwise
  */
-int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *addr);
+int tftp_send_ack(int block_n, char* out_buffer, int sd, 
+                  struct sockaddr_in *addr);
 
 /**
  * Handle the entire workflow required to receive a file.
@@ -89,7 +94,8 @@ int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *add
  * used on the server side, potentially (some tweaks may be needed, though!).
  * 
  * @param m_fblock   block file where to write incoming data to
- * @param sd         socket id of the (UDP) socket to be used to send ACK messages
+ * @param sd         socket id of the (UDP) socket to be used to send ACK 
+ *                   messages
  * @param addr       address of the recipient of ACKs
  * @return
  * - 0 in case of success.
@@ -99,10 +105,12 @@ int tftp_send_ack(int block_n, char* out_buffer, int sd, struct sockaddr_in *add
  * - 4 in case of an error while unpacking data.
  * - 5 in case of an error while unpacking an incoming error message.
  * - 6 in case of en error while writing to the file.
- * - 7 in case of an error message different from File Not Found (since it is the only erorr available in current implementation).
+ * - 7 in case of an error message different from File Not Found (since it is 
+ * the only erorr available in current implementation).
  * - 8 in case of the incoming message is neither DATA nor ERROR.
  */
-int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr);
+int tftp_receive_file(struct fblock *m_fblock, int sd, 
+                      struct sockaddr_in *addr);
 
 /**
  * Receive an ACK message.
@@ -110,8 +118,10 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
  * In current implementation it is only used for receiving ACKs from client.
  * 
  * @param block_n [out] sequence number of the acknowledged block.
- * @param in_buffer     buffer to be used for receiving the ACK (useful for recycling the same buffer)
- * @param sd [in]       socket id of the (UDP) socket to be used to send the message
+ * @param in_buffer     buffer to be used for receiving the ACK (useful for 
+ *                      recycling the same buffer)
+ * @param sd [in]       socket id of the (UDP) socket to be used to send the 
+ *                      message
  * @param addr [in]     address of recipient of the ACK
  * @return
  * - 0 in case of success
@@ -121,7 +131,8 @@ int tftp_receive_file(struct fblock *m_fblock, int sd, struct sockaddr_in *addr)
  * 
  * @see tftp_msg_unpack_ack
  */
-int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *addr);
+int tftp_receive_ack(int *block_n, char* in_buffer, int sd, 
+                     struct sockaddr_in *addr);
 
 /**
  * Handle the entire workflow required to send a file.
@@ -130,7 +141,8 @@ int tftp_receive_ack(int *block_n, char* in_buffer, int sd, struct sockaddr_in *
  * used on the client side, potentially (some tweaks may be needed, though!).
  * 
  * @param m_fblock   block file where to read incoming data from
- * @param sd         socket id of the (UDP) socket to be used to send DATA messages
+ * @param sd         socket id of the (UDP) socket to be used to send DATA 
+ *                   messages
  * @param addr       address of the recipient of the file 
  * @return
  * - 0 in case of success.
