@@ -60,13 +60,23 @@ ALL_SOURCES += logging.h
 ALL_SOURCES += $(addprefix src/,$(addsuffix .c,$(TARGETS)))
 
 # Build source code ps file
-$(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME)) : $(SRCDIR)/*.c $(HDRDIR)/*.h
+$(OBJDIR)/sources.ps : $(SRCDIR)/*.c $(HDRDIR)/*.h
 	echo $(ALL_SOURCES)
-	enscript -C -fCourier9 --highlight=c -p$(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME)) $(ALL_SOURCES)
+	enscript -C -fCourier9 --highlight=c -p$(OBJDIR)/sources.ps  $(ALL_SOURCES)
+
+# Build makefile ps file
+$(OBJDIR)/makefile.ps: Makefile
+	enscript -C -fCourier9 --highlight=makefile -p$(OBJDIR)/makefile.ps Makefile
+
+$(OBJDIR)/sources.pdf: $(OBJDIR)/sources.ps
+	ps2pdf $(OBJDIR)/sources.ps $(OBJDIR)/sources.pdf
+
+$(OBJDIR)/makefile.pdf: $(OBJDIR)/makefile.ps
+	ps2pdf $(OBJDIR)/makefile.ps $(OBJDIR)/makefile.pdf
 
 # Builds source code pdf file
-$(DOCDIR)/$(SRCPDFNAME): $(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME))
-	ps2pdf $(OBJDIR)/$(subst .pdf,.ps,$(SRCPDFNAME)) $(DOCDIR)/$(SRCPDFNAME)
+$(DOCDIR)/$(SRCPDFNAME): $(OBJDIR)/sources.pdf $(OBJDIR)/makefile.pdf
+	pdfunite $(OBJDIR)/makefile.pdf $(OBJDIR)/sources.pdf $(DOCDIR)/$(SRCPDFNAME)
 
 # Builds everything (ecutables and documentation)
 all: exe $(DOCDIR)/$(DOCPDFNAME) $(DOCDIR)/$(SRCPDFNAME)
